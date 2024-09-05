@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+</head>
+<body>
+	<table id="dg" title="PICKUP ORDER" class="easyui-datagrid" style="width:100%;height:100%"
+			url="transak/pickup/get.php"
+			toolbar="#toolbar" pagination="true"
+			rownumbers="true" fitColumns="false" singleSelect="true">
+		<thead>
+			<tr>
+            <th field="POrderCustName" width="150">Nama Pelanggan</th>
+            <th field="POrderCustAddr1" width="200">Alamat pengambilan</th>
+            <th field="POrderKurir" width="100">Kurir</th>
+            <th field="POrderCustPerson" width="100">Contack Person</th>
+            <th field="POrderDate" width="125">Waktu Order</th>
+            <th field="POrderCSO" width="50">CSO</th>
+            <th field="POrderFinalDate" width="125">Konfirmasi</th>
+            <th field="POrderCSO2" width="50">CSO2</th>
+			<th field="POrderMemo" width="100">Catatan</th>
+            <th field="POrderNo" width="50">Order#</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+        <span>Kurir :</span>
+        <input id="kurir" name="kurir" style="line-height:20px;border:1px solid #ccc">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearch()">Search</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New Order</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Confirm/Final Order</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Hapus Order</a>
+	</div>
+	
+	<div id="dlg" class="easyui-dialog" style="width:500px;height:350px;padding:5px 10px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Entry Order Pickup</div>
+		<form id="fm" method="post" novalidate>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2">
+  		<tr>
+    		<td width="18%"><label>No. Acc.</label></td>
+    		<td width="32%"><span class="fitem">
+      		<select name="POrderCustNo" class="easyui-combobox" required="true" data-options="prompt:'pilih pelanggan'"></span>
+            <?
+    	  	include('config/koneksi.php'); 
+		  	$sales=mysql_query("select CustomerNo,CustomerName from tblCustomer where CustomerCategory in (2,5,6) order by CustomerName ",$koneksi);
+		  	while ($dsales=mysql_fetch_array($sales))
+				echo "<option value='$dsales[0]'>$dsales[1]</option>";
+		 	?>
+            
+            </select>
+            </td>
+    	</tr>
+  		<tr>
+    		<td>Alamat</td>
+    		<td><span class="fitem">
+      		<input name="POrderCustAddr1" class="easyui-textbox" ></span></td>
+            
+    	</tr>
+  		<tr>
+    		<td>Person</td>
+    		<td><span class="fitem">
+      		<input name="POrderCustPerson" class="easyui-textbox" ></span></td>
+    	</tr>
+  		<tr>
+    		<td><label>Moda</label></td>
+    		<td><select name="POrderDest" class="easyui-combobox" required="true" data-options="prompt:'pilih'">
+      			<option value="0">MOTOR</option>
+      			<option value="1" >MOBIL</option>
+    			</select></td>
+    	</tr>
+  		<tr>
+    	 <td>Catatan khusus</td>
+    	 <td><span class="fitem">
+      	 <input name="POrderMemo" class="easyui-textbox" style="height:40px" data-options="multiline:true">    </span></td>
+    	</tr>
+        </table>
+ 	</form>
+	</div>
+    
+    
+	<div id="dlg-buttons"> 
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+    
+    
+	<div id="dlg2" class="easyui-dialog" style="width:500px;height:200px;padding:5px 10px"
+			closed="true" buttons="#dlg-buttons2">
+		<div class="ftitle">Update Order Pickup</div>
+		<form id="fm1" method="post" novalidate>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2">
+  		<tr>
+    		<td width="18%"><label>Customer</label></td>
+    		<td width="32%"><span class="fitem">
+      		<input name="POrderCustName" class="easyui-textbox"></span>
+            </td>
+    	</tr>
+  		<tr>
+    		<td width="18%"><label>Kurir</label></td>
+    		<td width="32%"><span class="fitem">
+              <select name="POrderKurir" class="easyui-combobox">
+                <?
+    	        	include('config/koneksi.php'); 
+		  			$sales=mysql_query("select PegawaiNama from tblPegawai order by PegawaiNama ",$koneksi);
+		  			while ($dsales=mysql_fetch_array($sales))
+					echo "<option value='$dsales[0]'>$dsales[0]</option>";
+		 		?>
+            	</select>
+                </span>
+            </td>
+    	</tr>
+        </table>
+ 	</form>
+	</div>    
+
+	<div id="dlg-buttons2"> 
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser2()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg2').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+    
+    
+    
+	<script type="text/javascript">
+		var url;
+        
+        function doSearch(){
+        $('#dg').datagrid('load',{
+            kurir: $('#kurir').val()
+            });
+        }        
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','Order Pickup');
+			$('#fm').form('clear');
+			url = 'transak/pickup/save.php';
+		}
+		
+		function editUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg2').dialog('open').dialog('setTitle','Update Order');
+				$('#fm1').form('load',row);
+				url = 'transak/pickup/update.php?id='+row.POrderNo;
+			}
+		}
+		
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')'); 
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+
+		function saveUser2(){
+			$('#fm1').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')'); 
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg2').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Anda yakin akan HAPUS record ini ?',function(r){
+					if (r){
+						$.post('transak/pickup/destroy.php',{id:row.POrderNo},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>

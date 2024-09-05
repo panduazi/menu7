@@ -1,0 +1,342 @@
+<?php
+date_default_timezone_set('Asia/Jakarta');
+$per=date('Ym');
+$hariini=date('Ymd');
+//$per='202109';
+include('config/koneksi.php');
+
+$query0=mysqli_query($koneksi,"SELECT *
+                    FROM tblhrkerja 
+                    WHERE date_format(Tanggal,'%Y%m%d')= '$hariini' 
+                    ");
+$r0=mysqli_fetch_array($query0);
+$jkerja=$r0['JumHari'];
+$harike=$r0['HariKe']-1;
+
+$query=mysqli_query($koneksi,"SELECT sum(ConnoteBillAmount-ConnoteBillDisc) AS net, 
+                            sum(ConnoteQty) as qty, 
+                            sum(ConnoteWeight) as kg,
+                            count(*) as awb
+                    FROM tblConnote_odisys 
+                    WHERE date_format(ConnoteDate,'%Y%m')= '$per' AND ConnoteOrig=11
+                    ");
+$r=mysqli_fetch_array($query);
+$trp=$r['net'];
+$tqty=$r['awb'];
+$tkg=$r['kg'];
+
+$rataharian=$trp/$harike;
+$forcast=$rataharian*$jkerja;
+
+?>
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<style type="text/css">
+            ${demo.css}
+		</style>
+		<script type="text/javascript">
+    $(function () {
+        $('#container').highcharts({
+        title: {
+            text: 'Produksi yang dicapai Bulanan',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Penjualan dalam rupiah (IDR)',
+            x: -20
+        },
+        xAxis: {
+            categories: ['Jan','Feb','Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov','Des']
+        },
+        yAxis: {
+            title: {
+                text: 'Produksi dalam jutaan (Rp.)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: ' rupiah'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+        }, {
+            name: '2021',
+            data: [736559508,
+                937104779,
+                1201591779,
+                932828582,
+                917073701,
+                782636375,
+                764864731,
+                1116735859,
+                817470823,
+                1018175097,
+                953420951,
+                966757926]
+        },{
+            name: '2022',
+            data: [740772026,
+                635432077,
+                722177223,
+                703848451,
+	        560958391,
+                714148348,
+                744453738,
+                724920383,
+                821681033,
+		712487521,
+                737837616,
+                744800055]
+        },{
+            name: '2023',
+            data: [747762815,
+              	831822412,
+              	1096355311,
+		611279724,
+		800545015,
+		2219994943,
+		1080436555,
+		1393115365,
+              	796728215,
+		1085997864,
+		1193275796,
+              	1409367601]
+
+        },{
+            name: '2024',
+            data: [
+		1024153579,
+		632198415,
+		658112270,
+		629585818,
+		744292634,
+		555319574,
+		848621510,
+		833943945,
+              <?php echo "$trp" ?>]
+	}
+    ]
+    });
+        $('#container2').highcharts({
+        title: {
+            text: 'Produksi yang dicapai Bulanan',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Produksi dalam berat (Kg.)',
+            x: -20
+        },
+        xAxis: {
+            categories: ['Jan','Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov','Des']
+        },
+        yAxis: {
+            title: {
+                text: 'Produksi dalam berat (Kg.)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: ' kilogram'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: '2021',
+            data: [50912, 
+            73481,
+            95414,
+            64512,
+            73757,
+            63277,
+            65270,
+            96784,
+            75210,
+            97325,
+            75499,
+            75583]
+        }, {
+            name: '2022',
+            data: [61583,
+            75942,
+            59014,
+            53337,
+	        45586,
+            53591,
+            54742,
+            56576,
+            73602,
+	        60231,
+            58063,
+            57595,
+            58573]
+        },{
+            name: '2023',
+            data: [57443,
+                57734,
+                62042,
+		71948,
+		61568,
+		52334,
+		62133,
+		71948,
+        	57174,
+		73837,
+		65311,
+            	55062]
+        },{
+            name: '2024',
+            data: [60823,
+		53081,
+		55956,
+		47540,
+		57366,
+		46909,
+		53208,
+		54597,
+            	<?php echo "$tkg" ?>]
+}
+    ]
+    });
+        $('#container3').highcharts({
+        title: {
+            text: 'Produksi yang dicapai Bulanan',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Produksi dalam jumlah shipment (Resi/AWB)',
+            x: -20
+        },
+        xAxis: {
+            categories: ['Jan','Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov','Des']
+        },
+        yAxis: {
+            title: {
+                text: 'Produksi dalam shipment (Resi/AWB)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: ' shipment'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: '2021',
+            data: [17887, 
+            21185,
+            20356,
+            14827,
+            18295,
+            17026,
+            18738,
+            19963,
+            18863,
+            19697,
+            19505,
+            19515]
+        }, {
+            name: '2022',
+            data: [18383,
+            16150,
+            19224,
+            17173,
+	    12678,
+            16154,
+            16534,
+            56576,
+            20778,
+   	    17018,
+            17579,
+            17393,
+            17421]
+        },{
+            name: '2023',
+            data: [17394,
+                16606,
+                18276,
+		17967,
+		16260,
+		14669,
+		16679,
+		17967,
+        	15765,
+		17973,
+		17978,
+            	15418]
+        },{
+            name: '2024',
+            data: [17140,
+		15406,
+		15969,
+		12877,
+		16474,
+		15119,
+		16506,
+		16119,
+            	<?php echo "$tqty" ?>]
+
+	}
+    ]
+    });
+    });
+	</script>
+	</head>
+ 
+	<body>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <div class="easyui-tabs" style="width:100%;height:800">
+            <div title="Rupiah (Rp.)" style="padding:10px">
+                <div id="container"></div>
+                <div>
+                    <?php
+                    if ($harike>0) {
+                    echo "HARI KE ".$harike." DARI ".$jkerja." HARI KERJA </br>";
+                    echo "RATA2 HARIAN : Rp. ".number_format($rataharian)." </br>";
+                    echo "PERKIRAAN DIAKHIR BULAN : Rp. ".number_format($forcast);
+                    }
+                    ?>
+                </div>
+            </div>
+            <div title="Shipment (Resi)" style="padding:10px">
+                <div id="container3"></div>
+            </div>
+            <div title="Berat (Kg.)" style="padding:10px">
+                <div id="container2"></div>
+            </div>
+        </div>        
+    </body>
+</html>
+
+

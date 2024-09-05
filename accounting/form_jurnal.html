@@ -1,0 +1,223 @@
+<?php
+date_default_timezone_set('Asia/Jakarta');
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Jurnal Memorial</title>
+</head>
+<style type="text/css">
+	#fm {
+		margin: 0;
+		padding: 10px 30px;
+	}
+
+	.ftitle {
+		font-size: 14px;
+		font-weight: bold;
+		padding: 5px 0;
+		margin-bottom: 10px;
+		border-bottom: 1px solid #ccc;
+	}
+
+	.fitem {
+		margin-bottom: 5px;
+	}
+
+	.fitem label {
+		display: inline-block;
+		width: 80px;
+	}
+
+	.fitem input {
+		width: 160px;
+	}
+</style>
+
+<body>
+	<table id="dg" title="KOREKSI JURNAL HARIAN" class="easyui-datagrid" style="width:100%;height:100%" url="#"
+		pagination="true" toolbar="#toolbar" rownumbers="false" fitColumns="false" singleSelect="true" showFooter="true"
+		pagesize=50>
+		<thead>
+			<tr>
+				<th field="JournalDate">Tanggal</th>
+				<th field="JournalVoucerNo">No.Voc</th>
+				<th field="JournalAccNo">No. Akun</th>
+				<th field="AccName">Nama Akun</th>
+				<th field="JournalDesc">Keterangan Jurnal</th>
+				<th field="Db" align="right">Debet</th>
+				<th field="Cr" align="right">Credit</th>
+				<!-- <th field="JournalPeriode">Periode</th> -->
+			</tr>
+		</thead>
+	</table>
+
+	<div id="toolbar">
+		<input name="vocno" id="vocno" type="text" class="easyui-textbox" data-options="prompt:'Nomor Journal'">
+		<input name="tgl1" id="tgl1" type="text" class="easyui-datebox"
+			data-options="formatter:myformatter,parser:myparser" value="<?php echo date('Y-m-d') ?>" size="12">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true"
+			onclick="filter_data()">filter</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="new_data()">Tambah</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true"
+			onclick="edit_data()">Edit Jurnal</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true"
+			onclick="delete_data()">Hapus</a>
+	</div>
+
+	<div id="dlg" class="easyui-dialog" style="width:450px;height:500px;padding:10px 20px" closed="true"
+		buttons="#dlg-buttons">
+		<div class="ftitle">Form Data</div>
+		<form id="fm" class="on_enter" method="post" novalidate>
+			<div class="fitem">
+				<label>Nomor VOC:</label>
+				<input name="JournalVoucerNo" id="JournalVoucerNo" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Tanggal</label>
+				<input name="JournalDate" type="text" class="easyui-datebox" data-options="
+                  formatter:myformatter,
+                  parser:myparser                
+                  " id="JournalDate" value="<?php echo date('Y-m-d') ?>" size="12" required>
+			</div>
+			<div class="fitem">
+				<label>Account</label>
+				<input name="JournalAccNo" id="JournalAccNo" class="easyui-combobox" data-options="                               
+                        url:'accounting/get_acc.php',
+                        method:'get',
+                        valueField:'no',
+                        textField:'nama'
+          " style="width: 250px;" required>
+			</div>
+			<div class="fitem">
+				<label>Keterangan:</label>
+				<input name="JournalDesc" id="JournalDesc" style="width: 250px;" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Jumlah(Rp.):</label>
+				<input name="JournalValue" id="JournalValue" class="easyui-numberbox" value="0" data-options="
+          prefix:',',                                
+          formatter:function(value){
+            return addCommas(value)
+          }
+          ">
+			</div>
+			<div class="fitem">
+				<label>Debet/Kredit:</label>
+				<select name="JournalType" id="JournalType" class="easyui-combobox" style="width:70px;">
+					<option value="0">Debet</option>
+					<option value="1">Credit</option>
+				</select>
+			</div>
+			<!-- <div class="fitem">
+          <label>Reff:</label>
+          <input name="JournalReff" id="JournalReff" class="easyui-textbox">          
+        </div> -->
+			<div class="fitem">
+				<label>Periode:</label>
+				<input name="JournalPeriode" id="JournalPeriode" class="easyui-textbox" style="width:70px;">
+			</div>
+		</form>
+	</div>
+
+
+
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="save_data()"
+			style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel"
+			onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	</div>
+</body>
+
+
+<?php 
+  include 'jq/on_enter.php';
+?>
+
+<script>
+	var url;
+
+	function filter_data() {
+		var no = $("#vocno").textbox('getValue');
+		var date = $("#tgl1").datebox('getValue');
+		$("#dg").datagrid('options').url = 'accounting/get_journal.php?date=' + date + '&no=' + no;
+		$("#dg").datagrid('reload');
+	}
+
+	function new_data() {
+		$('#dlg').dialog('open').dialog('setTitle', 'Tambah Data');
+		$('#fm').form('clear');
+		$('#JournalPeriode').textbox('setValue', tanggalSekarang());
+		$('#JournalDate').datebox('setValue', tanggalSekarang());
+		$('#Cr').numberbox('setValue', 0);
+		$('#Db').numberbox('setValue', 0);
+		url = 'accounting/save_data.php';
+	}
+
+	function edit_data() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+			$('#dlg').dialog('open').dialog('setTitle', 'Edit Data');
+			$('#fm').form('load', row);
+			url = 'accounting/update_data.php?id=' + row.JournalId;
+			console.log(url);
+		}
+	}
+
+	function save_data() {
+		$('#fm').form('submit', {
+			url: url,
+			onSubmit: function () {
+				return $(this).form('validate');
+			},
+			success: function (result) {
+				var data = eval('(' + result + ')');
+				if (data.success == false) {
+					$.messager.show({
+						title: 'Error',
+						msg: data.errorMsg
+					});
+				} else {
+					$('#dlg').dialog('close'); // close the dialog
+					$('#dg').datagrid('reload');
+					$('#fm').form('clear');
+					$.messager.show({
+						title: 'Success',
+						msg: data.successMsg
+					});
+				}
+			}
+		});
+	}
+
+	function delete_data() {
+		var row = $('#dg').datagrid('getSelected');
+		if (row) {
+			$.messager.confirm('Confirm', 'Hapus data ini?', function (r) {
+				if (r) {
+					$.post('accounting/destroy_data.php', {
+						id: row.JournalId
+					}, function (result) {
+						if (result.success) {
+							$('#dg').datagrid('reload'); // reload the user data
+							$.messager.show({
+								title: 'Success',
+								msg: result.successMsg
+							});
+						} else {
+							$.messager.show({ // show error message
+								title: 'Error',
+								msg: result.errorMsg
+							});
+						}
+					}, 'json');
+				}
+			});
+		}
+	}
+</script>

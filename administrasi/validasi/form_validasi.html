@@ -1,0 +1,769 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Validasi Penjualan</title>
+  <style>
+    .numberbox .textbox-text {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<?php
+date_default_timezone_set('Asia/Jakarta');
+include 'jq/on_enter.php';
+?>
+
+<body>
+  <form id="fentryout" class="on_enter" method="post">
+    <div class="easyui-panel" title="Data Pengirim/Pelanggan" style="width:95%;padding:5px">
+      <table width="100%" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td>&nbsp;</td>
+          <td width="13%">NOMOR RESI/AWB</td>
+          <td width="69%">
+            <input name="noresi" id="noresi" type="text" size="15" class="easyui-textbox" data-options="required:true">
+            <input name="tglresi" type="text" class="easyui-datebox" data-options="
+                formatter:myformatter,
+                parser:myparser,
+                onSelect: function(){
+                $('#nmcust').textbox('textbox').focus();
+                }
+                " id="tglresi" value="<?php echo date('Y-m-d') ?>" size="12" />
+
+            <input type="hidden" id="id_connote" name="id_connote">
+            <input type="hidden" id="cuser" name="cuser" value="<?php echo $_SESSION['cuser'] ?>">
+          </td>
+          <td width="26%">&nbsp;</td>
+        </tr>
+        <td>&nbsp;</td>
+        <td>NAMA PELANGGAN</td>
+        <td>
+          <input class="easyui-textbox" name="nocust" size="12px" value="11.000.0000000" id="nocust" readonly="true">
+          <input name="nmcust" type="text" id="nmcust" size="30px" class="easyui-textbox"
+            data-options="required:true" />
+          <button type="button" class="easyui-linkbutton" name="btn_customer" iconCls="icon-search" plain="true"
+            id="btn_customer" onclick="$('#dlg-customer').dialog('open')" </button>
+        </td>
+        <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>A L A M A T</td>
+          <td>
+            <input name="alcust" id="alcust" size="50" class="easyui-textbox" data-options="required:true" />
+            TELP. <input name="telpcust" id="telpcust" size="10" class="easyui-textbox" />
+            REFF. <input name="nomor_do" id="nomor_do" size="10" class="easyui-textbox" data-options="required:false" />
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>NAMA DITUJU</td>
+          <td>
+            <input name="nmrecv" type="text" id="nmrecv" size="30" class="easyui-textbox"
+              data-options="required:true" />
+            <!-- <button type="button" class="easyui-linkbutton c6 l-btn l-btn-small" name="bttuju" id="bttuju" onclick="$('#dlg-tujuan').dialog('open')">Daf.Tujuan</button>  -->
+            <input name="norecv" type="hidden" id="norecv">
+            <input name="idrecv" type="hidden" id="idrecv" value="none">
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>ALAMAT DITUJU</td>
+          <td>
+            <input name="alrecv" id="alrecv" size="50" class="easyui-textbox" />
+            TELP. <input name="tlprecv" type="text" id="tlprecv" size="10" class="easyui-textbox" />
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>REFF/CATATAN</td>
+          <td>
+            <input name="reff_dituju" id="reff_dituju" size="20" class="easyui-textbox" data-options="required:false" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="margin: 20px;"></div>
+
+    <div class="easyui-tabs" style="width:95%;height:800">
+      <div title="VALIDASI HARGA JUAL" style="padding:5px">
+        <div class="easyui-panel" title="" style="width:100%;padding:5px">
+          <table width="100%" border="0" cellspacing="0" cellpadding="2">
+            <tr>
+              <td>&nbsp;</td>
+              <td>KOTA INPUT OPS</td>
+              <td>
+                <input class="easyui-textbox" id="kotaops" name="kotaops" readonly="true" size="100px" </td>
+
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>KOTA TUJUAN</td>
+              <td>
+                <input name="cbdest" id="cbdest" class="easyui-combobox" data-options=" 
+                      prompt:'--- Kota tujuan ---',
+                      url:'administrasi/validasi/get_tujuanloc.php', 
+                      mode:'remote',
+                      method:'get',
+                      valueField:'kode',
+                      textField:'tujuan',
+                      onSelect: function(val){
+                      }                    
+                  " required>
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>BERAT (Kg.)</td>
+              <td><input name="berat" type="text" id="berat" value="1" size="6" class="easyui-numberbox" data-options="
+                  required:true,
+                  prefix:',',                                
+                  formatter:function(value){
+                  return addCommas(value)
+                  }
+                  ">
+                KOLI/QTY
+                <input name="qty" type="text" id="qty" value="1" size="4" class="easyui-numberbox" data-options="
+              required:true,
+              prefix:',',                                
+                  formatter:function(value){
+                  return addCommas(value)
+                  }
+              " />
+                Dimensi :
+                <input name="vol1" type="text" id="vol1" value="1" size="3" class="easyui-numberbox" data-options="
+              required:true,
+              prefix:',',                                
+                  formatter:function(value){
+                  return addCommas(value)
+                  }
+              " />
+                x
+                <input name="vol2" type="text" id="vol2" value="1" size="3" class="easyui-numberbox" data-options="
+              required:true,
+              prefix:',',                                
+                  formatter:function(value){
+                  return addCommas(value)
+                  }
+              " />
+                x
+                <input name="vol3" type="text" id="vol3" value="1" size="3" class="easyui-numberbox" data-options="
+              required:true,
+              prefix:',',                                
+                  formatter:function(value){
+                  return addCommas(value)
+                  }
+              " />
+                cm
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>LAYANAN/SERVICE</td>
+              <td>
+                <input class="easyui-combobox" name="cbserv" id="cbserv" data-options=" 
+                          prompt:'--- Layanan ---',
+                          url:'administrasi/validasi/get_service.php',
+                          mode:'remote',
+                          method:'get',
+                          valueField:'id',
+                          textField:'nama',
+                          onSelect: function(val){
+                          } 
+                      ">
+                <input type="hidden" name="cbserv_id" id="cbserv_id">
+                <button type="button" class="easyui-linkbutton c6 l-btn l-btn-small" name="btnhitung_bea"
+                  id="btnhitung_bea" onclick="HitungBea()">Hitung ulang</button>
+                Harga sat. <input name="hrgsat" id="hrgsat" class="easyui-numberbox" data-options="
+                          required:true,
+                          readonly:true,
+                          prefix:',',                                
+                          formatter:function(value){
+                          return addCommas(value)
+                          }
+                      " />
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>KETERANGAN ISI</td>
+              <td>
+                <input name="ketisi" type="text" id="ketisi" size="30" class="easyui-textbox"
+                  data-options="required:true" />
+                <select name="jnsbayar" id="jnsbayar" style="width:100px;" class="easyui-combobox"
+                  data-options="required:true">
+                  <option value="0">CASH</option>
+                  <option value="1" selected="selected">CREDIT</option>
+                  <option value="2">COLLECT</option>
+                  <option value="3">FOC</option>
+                </select>
+
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>BEA KIRIM</td>
+              <td>
+                <input name="bea" id="bea" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                      required:true,
+                      prefix:',',                                
+                      formatter:function(value){
+                      return addCommas(value)
+                      }
+                      " />
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                Lainya :
+                <input name="other" id="other" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                      required:true,
+                      prefix:',',                                
+                      formatter:function(value){
+                      return addCommas(value)
+                      }
+                      " />
+              </td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>Packing</td>
+              <td>
+                <input name="pack" id="pack" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                  required:true,
+                  prefix:',',                                
+                  formatter:function(value){
+                      return addCommas(value)
+                  }
+                  " />
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                Asuransi :
+                <input name="ass" id="ass" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                  required:true,
+                  prefix:',',                                
+                  formatter:function(value){
+                      return addCommas(value)
+                  }
+                  " />
+              </td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>Discount (Rp.)</td>
+              <td>
+                <input name="disc" id="disc" type="text" value="0" size="10" class="easyui-numberbox"
+                  data-options="required:true" />
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                TOTAL :
+                <input name="tbea" id="tbea" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                  required:true,
+                  prefix:',',                                
+                  formatter:function(value){
+                      return addCommas(value)
+                  }
+                  " />
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div title="VALIDASI BIAYA OPS DAN HANDLING" style="padding:5px">
+        <div class="easyui-panel" title="" style="width:100%;padding:5px">
+          <table width="100%" border="0" cellspacing="0" cellpadding="2">
+            <tr>
+              <td>&nbsp;</td>
+              <td>Tanggal diterima</td>
+              <td>
+                <input class="easyui-datebox" name="tgldeli" id="tgldeli" type="text" value="tanggalsekarang()"
+                  data-options="
+                              formatter:myformatter,
+                              parser:myparser,
+                              onSelect: function(){
+                                $('#ketdeli').textbox('textbox').focus();
+                              }" size="10" />
+                Nama penerima
+                <input name="ketdeli" type="text" id="ketdeli" size="20" class="easyui-textbox" />
+                Kurir
+                <input name="pegdeli" type="text" id="pegdeli" size="20" class="easyui-textbox" />
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>&nbsp;</td>
+              <td>B. Muat/pickup</td>
+              <td>
+                <input name="beapu" id="beapu" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                          required:true,
+                          prefix:',',                                
+                          formatter:function(value){
+                            return addCommas(value)
+                          }
+                          " />
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>B. SMU/BL/VENDOR</td>
+              <td>
+                <input name="beasmu" id="beasmu" type="text" value="0" size="10" class="easyui-numberbox" data-options="
+                        required:true,
+                        prefix:',',                                
+                        formatter:function(value){
+                          return addCommas(value)
+                        }
+                        " />
+                <input name="memosmu" id="memosmu" type="text" prompt="Catatan atau kode vendor" size="30"
+                  class="easyui-textbox" />
+                per kg <input name="beasmu_u" id="beasmu_u" type="text" value="0" size="3" class="easyui-numberbox" />
+
+              </td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>B. Handling</td>
+              <td>
+                <input name="beahand" id="beahand" type="text" value="0" size="10" class="easyui-numberbox"
+                  data-options="
+                        required:true,
+                        prefix:',',                                
+                        formatter:function(value){
+                          return addCommas(value)
+                        }                  
+                        " />
+                <input name="memohand" id="memohand" type="text" prompt="Catatan atau kode agen/cabang" size="30"
+                  class="easyui-textbox" />
+                per kg <input name="beahand_u" id="beahand_u" type="text" value="0" size="3" class="easyui-numberbox" />
+              </td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td>&nbsp;</td>
+              <td>TOTAL BIAYA</td>
+              <td><input name="tbea2" id="tbea2" type="text" value="0" size="10" readolny="true"
+                  class="easyui-numberbox" data-options="
+                        required:true,
+                        prefix:',',                                
+                        formatter:function(value){
+                          return addCommas(value)
+                        }
+                        " />
+                HARGA JUAL :
+                <input name="tjual" type="text" id="tjual" value="0" size="10" class="easyui-numberbox" data-options="
+                            readonly:true,
+                            prefix:',',                                
+                            formatter:function(value){
+                            return addCommas(value)
+                            }
+                          " />
+                GROSS PROFIT :
+                <input name="tgprofit" type="text" id="tgprofit" value="0" size="10" class="easyui-numberbox"
+                  data-options="
+                            readonly:true,
+                            prefix:',',                                
+                            formatter:function(value){
+                            return addCommas(value)
+                            }
+                          " />
+
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div style="margin:10px;pading:10px"></div>
+
+  <button type="button" class="easyui-linkbutton " iconCls="icon-save" name="btsave" id="btsave"
+    onclick="submitForm()">SAVE/REKAM</button>
+  <button type="button" class="easyui-linkbutton " iconCls="icon-cancel" name="btcancel" id="btcancel"
+    onclick="printAwb3()">BATAL</button>
+
+  <div id="dlg-customer" class="easyui-dialog" title="Data Pengirim" data-options="modal: true,closed: true"
+    style="width:500px;height:auto;padding:10px">
+    <table class="easyui-datagrid" style="width:100%;height:500px" id="customer_list" toolbar="#toolbar" data-options="
+                url:'#',
+                singleSelect:true,pagination:true,
+                rownumbers:false,
+                onDblClickRow: function(index,row){                                    
+                  $('#nmcust').textbox('setValue',row.CustomerName);
+                  $('#nocust').textbox('setValue',row.CustomerNo);
+                  $('#alcust').textbox('setValue',row.CustomerAddr1);
+                  $('#telpcust').textbox('setValue',row.CustomerTelp);
+                  $('#dlg-customer').dialog('close');
+                  $('#nmrecv').textbox('textbox').focus();
+                  }
+                ">
+      <thead>
+        <tr>
+          <th data-options="field:'CustomerNo'">NO.AKUN</th>
+          <th data-options="field:'CustomerName'">NAMA PELANGGAN</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <div id="toolbar">
+    <input class="easyui-searchbox" data-options="prompt:'Tulis nama yang dicari ... ',searcher:doSearch"
+      style="width:50%">
+  </div>
+
+</body>
+
+</html>
+
+<script>
+  $(document).ready(function () {
+    $("#noresi").textbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        cekNoConnote();
+        return false;
+      }
+    });
+    $("#tglresi").datebox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        $("#nmcust").textbox('textbox').focus();
+        return false;
+      }
+    });
+    $("#cbserv").combobox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        $("#jnsbayar").combobox('textbox').focus();
+        return false;
+      }
+    });
+    $("#bea").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal();
+        // return false;
+      }
+    });
+    $("#pack").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal();
+        // return false;
+      }
+    });
+    $("#other").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal();
+        // return false;
+      }
+    });
+    $("#ass").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal();
+        // return false;
+      }
+    });
+    $("#disc").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal();
+        // return false;
+      }
+    });
+    $("#beapu").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal2();
+      }
+    });
+    $("#beasmu").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal2();
+      }
+    });
+    $("#beahand").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotal2();
+      }
+    });
+    $("#beasmu_u").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotSmu();
+      }
+    });
+    $("#beahand_u").numberbox('textbox').bind('keydown', function (e) {
+      if (e.keyCode == 13) {
+        HitungTotHand();
+      }
+    });
+  });
+
+  function doSearch(value) {
+    var url = 'administrasi/validasi/get_customer.php?q=' + value;
+    $("#customer_list").datagrid('reload', url);
+  }
+
+  function filternama() {
+    var cari = $('#textcari').textbox('getValue');
+    var url = 'administrasi/validasi/get_customer.php?q=' + cari;
+    $("#customer_list").datagrid('reload', url);
+  }
+
+
+  function cekNoConnote() {
+    var kode = $("#noresi").textbox('getValue');
+    $.ajax({
+      url: 'administrasi/validasi/cek_connote.php?kode=' + kode,
+      type: 'GET',
+      dataType: 'JSON',
+      success: function (data) {
+        if (data.success == true) {
+          console.log(data.connote)
+          $("#id_connote").val(data.connote.ConnoteRecNo);
+          $("#tglresi").datebox('setValue', data.connote.ConnoteDate);
+          $("#nmcust").textbox('setValue', data.connote.ConnoteCustName);
+          $("#nocust").textbox('setValue', data.connote.ConnoteCustNo);
+          $("#alcust").textbox('setValue', data.connote.ConnoteCustAddr1);
+          $("#telpcust").textbox('setValue', data.connote.ConnoteCustTelp);
+          $("#nomor_do").textbox('setValue', data.connote.ConnoteCustReff);
+
+          $("#nmrecv").textbox('setValue', data.connote.ConnoteRecvName);
+          $("#idrecv").val(data.connote.ConnoteRecvId);
+          $("#alrecv").textbox('setValue', data.connote.ConnoteRecvAddr1);
+          $("#tlprecv").textbox('setValue', data.connote.ConnoteRecvTelp);
+          $("#reff_dituju").textbox('setValue', data.connote.ConnoteRecvReff);
+
+          $("#tgldeli").datebox('setValue', data.connote.ConnoteDateDeli);
+          $("#ketdeli").textbox('setValue', data.connote.ConnoteDescDeli);
+          $("#pegdeli").textbox('setValue', data.connote.ConnoteCourierDeli);
+
+          $("#cbdest").combobox('setValue', data.connote.ConnoteDest);
+          $("#kotaops").textbox('setValue', 'PROPINSI ' + data.connote.REGION + ', ' + data.connote.JENIS + ' ' + data.connote.KOTA + ', KEC. ' + data.connote.KECAMATAN)
+          $("#berat").numberbox('setValue', data.connote.ConnoteWeight);
+          $("#qty").numberbox('setValue', data.connote.ConnoteQty);
+          $("#vol1").numberbox('setValue', data.connote.ConnoteVol1);
+          $("#vol2").numberbox('setValue', data.connote.ConnoteVol2);
+          $("#vol3").numberbox('setValue', data.connote.ConnoteVol3);
+
+          $("#ketisi").textbox('setValue', data.connote.ConnoteContents);
+          $("#cbserv").textbox('setValue', data.connote.ServiceName);
+          $("#cbserv_id").val(data.connote.ConnoteService);
+          $("#jnsbayar").combobox('setValue', data.connote.ConnotePayment);
+          $("#hrgsat").numberbox('setValue', data.connote.ConnoteCost3);
+
+
+          if (data.connote.ConnoteBillAmount > 0) {
+            $("#bea").numberbox('setValue', data.connote.ConnoteBillAmount);
+            $("#other").numberbox('setValue', data.connote.ConnoteBillOther);
+            $("#pack").numberbox('setValue', data.connote.ConnoteBillPack);
+            $("#ass").numberbox('setValue', data.connote.ConnoteBillInsurance);
+            $("#disc").numberbox('setValue', data.connote.ConnoteBillDisc);
+            HitungTotal();
+          }
+        } else {
+          console.log(data);
+          $.messager.show({
+            title: 'Error',
+            msg: data.message
+          });
+        }
+      }
+    });
+  }
+
+  function submitForm() {
+    var total = $("#tbea").numberbox('getValue');
+    if (total == 0) {
+      $.messager.show({
+        title: 'Error',
+        msg: 'Total tidak Valid'
+      });
+      return false;
+    }
+    $('#fentryout').form('submit', {
+      url: 'administrasi/validasi/update_resi.php',
+      onSubmit: function () {
+        return $(this).form('validate');
+      },
+      success: function (result) {
+        var result = eval('(' + result + ')');
+        if (result.errorMsg) {
+          $.messager.show({
+            title: 'Error',
+            msg: result.errorMsg
+          });
+        } else {
+          updateConnoteSiap()
+          clearForm();
+          $('#dg').datagrid('reload');
+          $("#tujuan_list").datagrid('reload');
+          $.messager.show({
+            title: 'Success',
+            msg: result.successMsg
+          });
+        }
+      }
+    });
+  }
+
+  function getFormData(formId) {
+    const form = document.getElementById(formId);
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+    return data;
+  }
+
+  function updateConnoteSiap() {
+    var data = getFormData('fentryout');
+    console.error('datass', data)
+    var win = $.messager.progress({
+      title: 'Tunggu Sebentar',
+      msg: 'Loading data...'
+    });
+    $.ajax({
+      url: 'https://pandusiwibandung.co.id/api/internal/connote/updateConnote.php',
+      headers: {
+        "api-key": 'Fx338#!98765fYT#!2321'
+      },
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
+      success: function (response) {
+        console.error('response', response)
+
+        if (response.error) {
+          $.messager.progress('close');
+          alert('Gagal update data dengan siap');
+        } else {
+          dataSync = response.data
+          $.messager.progress('close');
+          alert('Berhasil update data dengan siap');
+        }
+
+      },
+      error: function () {
+        $.messager.progress('close');
+        alert('Error fetching data from API');
+      }
+    });
+  }
+  function HitungBea() {
+
+    var tujuan = $("#cbdest").combobox('getValue');
+    var cust_no = $("#nocust").val();
+    var berat = Number($("#berat").numberbox('getValue'));
+    var qty = Number($("#qty").numberbox('getValue'));
+    //alert(tujuan);
+
+    var vol1 = Number($("#vol1").numberbox('getValue'));
+    var vol2 = Number($("#vol2").numberbox('getValue'));
+    var vol3 = Number($("#vol3").numberbox('getValue'));
+
+    var pembulatan_bulat = berat - Math.floor(berat);
+    var berat_actual = 0;
+    var berat_fix = 0;
+
+    if (pembulatan_bulat > 0.3) {
+      berat_actual = Math.floor(berat) + 1
+    } else {
+      berat_actual = Math.floor(berat);
+    }
+    var berat_volume = (vol1 * vol2 * vol3) / 4000;
+    if (berat_actual > berat_volume) {
+      berat_fix = berat_actual;
+    } else {
+      berat_fix = berat_volume;
+    }
+    if (tujuan == '') {
+      console.log('Data Cek Harga Invalid : Tujuan');
+      return false;
+    } else if (cust_no == '') {
+      console.log('Data Cek Harga Invalid : Cust No');
+      return false;
+    }
+    $.ajax({
+      url: 'administrasi/validasi/cek_harga2.php?cust='
+        + cust_no + '&tujuan=' + tujuan + '&berat_fix=' + berat_fix + '&qty=' + qty,
+      type: 'GET',
+      dataType: 'JSON',
+      success: function (data) {
+        console.log('data', data)
+        $("#tbea").numberbox('setValue', data.Harga);
+      }
+    });
+  }
+
+  function clearForm() {
+    $('#fentryout').form('clear');
+    $("#berat").numberbox('setValue', 1);
+    $("#qty").numberbox('setValue', 1);
+    $("#harga1").numberbox('setValue', 0);
+    $("#harga2").numberbox('setValue', 0);
+    $("#limit").numberbox('setValue', 0);
+    $("#vol1").numberbox('setValue', 1);
+    $("#vol2").numberbox('setValue', 1);
+    $("#vol3").numberbox('setValue', 1);
+    $("#jnsbayar").combobox('setValue', 0);
+    $("#bea").numberbox('setValue', 0);
+    $("#other").numberbox('setValue', 0);
+    $("#pack").numberbox('setValue', 0);
+    $("#ass").numberbox('setValue', 0);
+    $("#disc").numberbox('setValue', 0);
+    $("#tbea").numberbox('setValue', 0);
+  }
+
+  function HitungTotal() {
+    var bea = Number($("#bea").numberbox('getValue'));
+    var other = Number($("#other").numberbox('getValue'));
+    var packing = Number($("#pack").numberbox('getValue'));
+    var asuransi = Number($("#ass").numberbox('getValue'));
+    var diskon = Number($("#disc").numberbox('getValue'));
+    var total_bea = bea + other + packing + asuransi;
+    var sub_total = total_bea - diskon;
+    $("#tbea").numberbox('setValue', sub_total);
+  }
+</script>

@@ -1,0 +1,700 @@
+<?php
+date_default_timezone_set('Asia/Jakarta');
+include 'jq/on_enter.php';
+
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>JURNAL BAYAR</title>
+</head>
+<style>
+    .numberbox .textbox-text {
+        text-align: right;
+    }
+</style>
+
+<body>
+
+    <div class="easyui-tabs" style="width:100%;height:auto">
+        <div title="BAYAR INV. PELANGGAN" style="padding:5px">
+            <form id="formbayar" class="on_enter" method="post">
+                <div class="easyui-layout" style="width:90%;height:205px;">
+
+                    <div data-options="region:'center',title:'Invoice yang akan dibayar'">
+                        <table style="padding:5px">
+                            <tr>
+                                <td>
+                                    NOMOR INVOICE
+                                </td>
+                                <td>
+                                    <input class="easyui-textbox" id="invno" name="invno">
+                                    <button type="button" class="easyui-linkbutton" iconCls="icon-search" plain="false"
+                                        onclick="$('#dlginv').dialog('open')"></button>
+                                    <input type="hidden" id="cuser" name="cuser"
+                                        value="<?php echo $_SESSION['cuser'] ?>">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PELANGGAN</td>
+                                <td>
+                                    <input class="easyui-textbox" id="invname" name="invname" style="width:250px">
+                                    <input class="easyui-textbox" id="invaddr" name="invaddr" style="width:200px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>NILAI NET (Rp.)</td>
+                                <td>
+                                    <input class="easyui-numberbox" id="invnilai" name="invnilai" value="0.0"
+                                        readonly="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LAINYA</td>
+                                <td>
+                                    <input class="easyui-numberbox" id="invoth" name="invoth" value="0.0"
+                                        readonly="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PPN</td>
+                                <td>
+                                    <input class="easyui-numberbox" id="invppn" name="invppn" value="0.0"
+                                        readonly="true">
+                                    PPH <input class="easyui-numberbox" id="invpph" name="invpph" value="0.0"
+                                        readonly="true">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SALDO PIUTANG</td>
+                                <td>
+                                    <input class="easyui-numberbox" value="0.0" id="saldo" name="saldo" readonly="true">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div data-options="region:'east',split:true" title="Catatan pembayaran terakhir"
+                        style="width:400px;">
+                        <table class="easyui-datagrid" style="width:100%;height:auto" id="grid-riwayat" data-options="
+                        url:'#',
+                        singleSelect:true,
+                        pagination:true,
+                        rownumbers:true
+                        ">
+                            <thead>
+                                <tr>
+                                    <th data-options="field:'ByrVoucerNo'">NO.VOUCHER</th>
+                                    <th data-options="field:'ByrDate'">TANGGAL</th>
+                                    <th data-options="field:'ByrAmmount_IDR',align:'right'" formatter="formatrp">NILAI
+                                        (Rp.)
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div style="margin:5px"></div>
+                <div class="easyui-panel" title="Akun penerimaan pembayaran" style="width:90%;height:275px;">
+                    <table style="padding:5px">
+                        <tr>
+                            <td>TGL.BAYAR</td>
+                            <td>
+                                <input id="tgbyr" name="tgbyr" type="text" class="easyui-datebox" data-options="
+                                    formatter:myformatter,
+                                    parser:myparser,
+                                    onSelect: function(){
+                                    $('#noacc1').textbox('textbox').focus();
+                                    }
+                                    " id="tglresi" value="<?php echo date('Y-m-d') ?>" size="10" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>KET./URAIAN </td>
+                            <td>
+                                <input class="easyui-textbox" id="ketbyr" name="ketbyr" style="width:400px">
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table style="padding:5px">
+                        <tr>
+                            <td>NO.AKUN DEBET</td>
+                            <td>NAMA AKUN DEBET</td>
+                            <td>NILAI</td>
+                            <td>NO.AKUN CREDIT</td>
+                            <td>NAMA AKUN CREDIT</td>
+                            <td>NILAI</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                1. <input id="noacc1" name="noacc1" class="easyui-textbox" style="width:60px">
+                                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"
+                                    plain="true" onclick="$('#dlgcoa1').dialog('open')"></a>
+                            </td>
+                            <td><input id="ketacc1" class="easyui-textbox" style="width:200px"> </td>
+                            <td><input id="rpacc1" name="rpacc1" class="easyui-numberbox" style="width:100px"
+                                    data-options="
+                                    prefix:',',                                
+                                    formatter:function(value){
+                                    return addCommas(value)
+                                    }
+                                    " />
+                            </td>
+
+                            <td>5. <input id="noacc5" name="noacc5" class="easyui-textbox" style="width:60px">
+                                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"
+                                    plain="true" onclick="$('#dlgcoa5').dialog('open')" </a>
+                            </td>
+                            <td><input id="ketacc5" class="easyui-textbox" style="width:200px"> </td>
+                            <td><input id="rpacc5" name="rpacc5" class="easyui-numberbox" style="width:100px"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                2. <input id="noacc2" name="noacc2" class="easyui-textbox" style="width:60px">
+                                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"
+                                    plain="true" onclick="$('#dlgcoa2').dialog('open')"></a>
+                            </td>
+                            <td><input id="ketacc2" class="easyui-textbox" style="width:200px"> </td>
+                            <td><input id="rpacc2" name="rpacc2" class="easyui-numberbox" style="width:100px"></td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                3. <input id="noacc3" name="noacc3" class="easyui-textbox" style="width:60px">
+                                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"
+                                    plain="true" onclick="$('#dlgcoa3').dialog('open')"></a>
+                            </td>
+                            <td><input id="ketacc3" class="easyui-textbox" style="width:200px"> </td>
+                            <td><input id="rpacc3" name="rpacc3" class="easyui-numberbox" style="width:100px"></td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                4. <input id="noacc4" name="noacc4" class="easyui-textbox" style="width:60px">
+                                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"
+                                    plain="true" onclick="$('#dlgcoa4').dialog('open')"></a>
+                            </td>
+                            <td><input id="ketacc4" class="easyui-textbox" style="width:200px"> </td>
+                            <td><input id="rpacc4" name="rpacc4" class="easyui-numberbox" style="width:100px"></td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                            <td>&nbsp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td align="right">TOTAL DEBET : </td>
+                            <td><input id="totdebet" name="totdebet" class="easyui-numberbox" style="width:100px"></td>
+                            <td></td>
+                            <td align="right">TOTAL CREDIT : </td>
+                            <td><input id="totcredit" name="totcredit" class="easyui-numberbox" style="width:100px">
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+
+                <div style="margin:10px"></div>
+                <button type="button" class="easyui-linkbutton" iconCls="icon-cancel" plain="false"
+                    onclick="bersihform()">Batal</button>
+                <button type="button" class="easyui-linkbutton" iconCls="icon-save" plain="false"
+                    onclick="rekamjurnal()">Save/Rekam</button>
+            </form>
+        </div>
+        <div title="BAYAR & HAPUS INV. COLLECT" style="padding:5px">
+        </div>
+    </div>
+
+    <div class="easyui-dialog" id="dlginv" title="Data Invoice" data-options="iconCls:'icon-save',closed: true"
+        style="width:800px;height:400px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:100%;height:auto" id="grid-invoice" data-options="
+                url:'accounting/get_invoice.php',
+                singleSelect:true,pagination:true,
+                rownumbers:true,
+                toolbar: '#tlbar_dlg_inv',
+                onDblClickRow: function(index,row){  
+                    cariinv(row.InvoiceNo);
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'InvoiceNo'">NO.INVOICE</th>
+                    <th data-options="field:'InvoiceDate'">TANGGAL</th>
+                    <th data-options="field:'InvoiceCustNo'">NO.PELANGGAN</th>
+                    <th data-options="field:'InvoiceName'">NAMA PELANGGAN</th>
+                    <th data-options="field:'InvoiceSaldo_IDR',align:'right'" formatter="formatrp">NILAI (Rp.)</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div id="tlbar_dlg_inv">
+        <input class="easyui-searchbox" data-options="prompt:'Naman pelanggan yg dicari',searcher:doSearch"
+            style="width:40%;">
+    </div>
+
+    <div class="easyui-dialog" id="dlgcoa1" title="CHART OF ACCOUNT" data-options="closed: true"
+        style="width:400px;height:620px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:90%;height:auto" id="grid-coa1" pagesize="20" data-options="
+                url:'accounting/get_acc_grid.php',
+                singleSelect:true,
+                pagination:true,
+                toolbar: '#',
+                onDblClickRow: function(index,row){ 
+                    var saldo=$('#saldo').textbox('getValue');
+                    $('#noacc1').textbox('setValue',row.AccNo);
+                    $('#ketacc1').textbox('setValue',row.AccName);
+                    $('#rpacc1').textbox('setValue',saldo);
+                    $('#noacc5').textbox('setValue','11210');
+                    $('#ketacc5').textbox('setValue','PIUTANG DAGANG CUSTOMER');
+                    $('#rpacc5').textbox('setValue',saldo);
+                    $('#dlgcoa1').dialog('close');
+                    hitungulang();
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'AccNo'">NO. ACCOUNT</th>
+                    <th data-options="field:'AccName'">NAMA ACCOUNT</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div class="easyui-dialog" id="dlgcoa2" title="CHART OF ACCOUNT" data-options="closed: true"
+        style="width:400px;height:620px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:90%;height:auto" id="grid-coa1" pagesize="20" data-options="
+                url:'accounting/get_acc_grid.php',
+                singleSelect:true,
+                pagination:true,
+                toolbar: '#',
+                onDblClickRow: function(index,row){ 
+                    var saldo=$('#saldo').textbox('getValue');
+                    $('#noacc2').textbox('setValue',row.AccNo);
+                    $('#ketacc2').textbox('setValue',row.AccName);
+                    $('#dlgcoa2').dialog('close');
+                    hitungulang();
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'AccNo'">NO. ACCOUNT</th>
+                    <th data-options="field:'AccName'">NAMA ACCOUNT</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="easyui-dialog" id="dlgcoa3" title="CHART OF ACCOUNT" data-options="closed: true"
+        style="width:400px;height:620px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:90%;height:auto" id="grid-coa1" pagesize="20" data-options="
+                url:'accounting/get_acc_grid.php',
+                singleSelect:true,
+                pagination:true,
+                toolbar: '#',
+                onDblClickRow: function(index,row){ 
+                    var saldo=$('#saldo').textbox('getValue');
+                    $('#noacc3').textbox('setValue',row.AccNo);
+                    $('#ketacc3').textbox('setValue',row.AccName);
+                    $('#dlgcoa3').dialog('close');
+                    hitungulang();
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'AccNo'">NO. ACCOUNT</th>
+                    <th data-options="field:'AccName'">NAMA ACCOUNT</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="easyui-dialog" id="dlgcoa4" title="CHART OF ACCOUNT" data-options="closed: true"
+        style="width:400px;height:620px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:90%;height:auto" id="grid-coa1" pagesize="20" data-options="
+                url:'accounting/get_acc_grid.php',
+                singleSelect:true,
+                pagination:true,
+                toolbar: '#',
+                onDblClickRow: function(index,row){ 
+                    var saldo=$('#saldo').textbox('getValue');
+                    $('#noacc4').textbox('setValue',row.AccNo);
+                    $('#ketacc4').textbox('setValue',row.AccName);
+                    $('#dlgcoa4').dialog('close');
+                    hitungulang();
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'AccNo'">NO. ACCOUNT</th>
+                    <th data-options="field:'AccName'">NAMA ACCOUNT</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="easyui-dialog" id="dlgcoa5" title="CHART OF ACCOUNT" data-options="closed: true"
+        style="width:400px;height:620px;padding:5px" modal="true">
+        <table class="easyui-datagrid" style="width:90%;height:auto" id="grid-coa1" pagesize="20" data-options="
+                url:'accounting/get_acc_grid.php',
+                singleSelect:true,
+                pagination:true,
+                toolbar: '#',
+                onDblClickRow: function(index,row){ 
+                    var saldo=$('#totcredit').textbox('getValue');
+                    $('#noacc5').textbox('setValue',row.AccNo);
+                    $('#ketacc5').textbox('setValue',row.AccName);
+                    $('#dlgcoa5').dialog('close');
+                    $('#rpacc5').textbox('setValue',saldo);
+                    hitungulang();
+                  }
+                ">
+            <thead>
+                <tr>
+                    <th data-options="field:'AccNo'">NO. ACCOUNT</th>
+                    <th data-options="field:'AccName'">NAMA ACCOUNT</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</body>
+
+</html>
+
+<script>
+
+    $(document).ready(function () {
+        $("#invno").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                var nomorinv = $('#invno').textbox('getValue');
+                //alert(nomorinv);
+                //caririwayat(nomorinv);
+                cariinv(nomorinv);
+                return false;
+            }
+        });
+        $("#rpacc1").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                hitungulang();
+                return false;
+            }
+        });
+        $("#rpacc2").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                hitungulang();
+                return false;
+            }
+        });
+        $("#rpacc3").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                hitungulang();
+                return false;
+            }
+        });
+        $("#rpacc4").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                hitungulang();
+                return false;
+            }
+        });
+        $("#noacc1").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                cariakun(1);
+                return false;
+            }
+        });
+        $("#noacc2").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                cariakun(2);
+                return false;
+            }
+        });
+        $("#noacc3").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                cariakun(3);
+                return false;
+            }
+        });
+        $("#noacc4").textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                cariakun(4);
+                return false;
+            }
+        });
+    });
+
+    function cariakun(x) {
+        var noakun;
+        var nmakun;
+        if (x == 1) {
+            noakun = $('#noacc1').textbox('getValue');
+        } else if (x == 2) {
+            noakun = $('#noacc2').textbox('getValue');
+        } else if (x == 3) {
+            noakun = $('#noacc3').textbox('getValue');
+        } else {
+            noakun = $('#noacc4').textbox('getValue');
+        }
+        $.ajax({
+            url: 'accounting/cek_coa.php?kode=' + noakun,
+            type: 'GET',
+            dataType: 'JSON',
+            success: function (data) {
+                if (data.success == true) {
+                    var saldo = $('#saldo').numberbox('getValue');
+                    nmakun = data.coa.AccName;
+                    if (x == 1) {
+                        $('#ketacc1').textbox('setValue', nmakun);
+                    } else if (x == 2) {
+                        $('#ketacc2').textbox('setValue', nmakun);
+                    } else if (x == 3) {
+                        $('#ketacc3').textbox('setValue', nmakun);
+                    } else {
+                        $('#ketacc4').textbox('setValue', nmakun);
+                    }
+                    $('#rpacc1').textbox('setValue', saldo);
+                    $('#noacc5').textbox('setValue', '11210');
+                    $('#ketacc5').textbox('setValue', 'PIUTANG DAGANG CUSTOMER');
+                    $('#rpacc5').textbox('setValue', saldo);
+                    $('#totcredit').numberbox('setValue', saldo);
+                    $('#totdebet').numberbox('setValue', saldo);
+
+                    //hitungulang();
+                } else {
+                    console.log(data);
+                    $.messager.show({
+                        title: 'Error',
+                        msg: data.message
+                    });
+                }
+            }
+        });
+
+
+    }
+
+
+    function hitungulang() {
+        var salcr = $('#saldo').numberbox('getValue');
+        var rp1 = Number($('#rpacc1').numberbox('getValue'));
+        var rp2 = Number($('#rpacc2').numberbox('getValue'));
+        var rp3 = Number($('#rpacc3').numberbox('getValue'));
+        var rp4 = Number($('#rpacc4').numberbox('getValue'));
+        var saldb2 = rp1 + rp2 + rp3 + rp4;
+        if (salcr < saldb2) {
+            rp1Minus = salcr - rp2 - rp3 - rp4
+            $('#rpacc1').numberbox('setValue', rp1Minus);
+            rp1 = Number($('#rpacc1').numberbox('getValue'));
+            var saldb = rp1 + rp2 + rp3 + rp4;
+            $('#rpacc5').numberbox('setValue', saldb);
+            $('#totcredit').numberbox('setValue', saldb);
+            $('#totdebet').numberbox('setValue', saldb);
+
+        } else {
+            var saldb = rp1 + rp2 + rp3 + rp4;
+            $('#rpacc5').numberbox('setValue', saldb);
+            $('#totcredit').numberbox('setValue', saldb);
+            $('#totdebet').numberbox('setValue', saldb);
+        }
+        console.log('saldo1', saldb)
+        console.log('saldo2', saldb)
+    }
+
+    function rekamjurnal() {
+        var totdb = $('#totcredit').textbox('getValue');
+        var totcr = $('#totdebet').textbox('getValue');
+        if (totdb == '' || totcr == '') {
+            alert('Total Debet atau Total Credit masih kosong!');
+        }
+        if (totdb != totcr) {
+            //klu nilai DB dan CR tidak sama, tolok saja
+            alert('REKAM JOURNAL GAGAL SUKSES: DB: ' + totdb + ',  CR : ' + totcr);
+            return;
+        } else {
+            var date = $('#tgbyr').datebox('getValue');
+
+            var noacc1 = $('#noacc1').textbox('getValue');
+            var noacc2 = $('#noacc2').textbox('getValue');
+            var noacc3 = $('#noacc3').textbox('getValue');
+            var noacc4 = $('#noacc4').textbox('getValue');
+
+            var noacc5 = $('#noacc5').textbox('getValue');
+
+            var rpacc1 = $('#rpacc1').textbox('getValue');
+            var rpacc2 = $('#rpacc2').textbox('getValue');
+            var rpacc3 = $('#rpacc3').textbox('getValue');
+            var rpacc4 = $('#rpacc4').textbox('getValue');
+
+            var rpacc5 = $('#rpacc5').textbox('getValue');
+
+            var ketbyr = $('#ketbyr').textbox('getValue');
+
+
+            const dataArrayObj = []
+            if (noacc1 != '') {
+                dataArrayObj.push({ JournalDate: date, JournalAccNo: noacc1, JournalDesc: ketbyr, JournalValue: rpacc1, JournalPeriode: formatDateJounal(date), JournalType: 0 });
+            }
+            if (noacc2 != '') {
+                dataArrayObj.push({ JournalDate: date, JournalAccNo: noacc2, JournalDesc: ketbyr, JournalValue: rpacc2, JournalPeriode: formatDateJounal(date), JournalType: 0 });
+            }
+            if (noacc3 != '') {
+                dataArrayObj.push({ JournalDate: date, JournalAccNo: noacc3, JournalDesc: ketbyr, JournalValue: rpacc3, JournalPeriode: formatDateJounal(date), JournalType: 0 });
+            }
+            if (noacc4 != '') {
+                dataArrayObj.push({ JournalDate: date, JournalAccNo: noacc4, JournalDesc: ketbyr, JournalValue: rpacc4, JournalPeriode: formatDateJounal(date), JournalType: 0 });
+            }
+
+            dataArrayObj.push({ JournalDate: date, JournalAccNo: noacc5, JournalDesc: ketbyr, JournalValue: rpacc5, JournalPeriode: formatDateJounal(date), JournalType: 1 });
+            const allData = {
+                ByrInvoiceNo: $('#invno').textbox('getValue'),
+                ByrDate: date,
+                ByrAmmount_IDR: $('#totcredit').numberbox('getValue'),
+                ByrUser: $('#cuser').val(),
+                dataJournal: dataArrayObj
+            }
+            console.log('dataArrayObj', allData)
+
+        }
+
+    }
+
+    function formatDateJounal(dateString) {
+        const date = new Date(dateString);
+
+        // Extract the year and month
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-based month
+
+        // Format to 'YYYY/MM'
+        const formattedDate = `${year}/${month}`;
+        return formattedDate
+    }
+
+    function bersihform() {
+        $('#invno').textbox('setValue', '');
+        $('#invname').textbox('setValue', '');
+        $('#invaddr').textbox('setValue', '');
+        $('#invnilai').textbox('setValue', '0');
+        $('#invoth').textbox('setValue', '0');
+        $('#invppn').textbox('setValue', '0');
+        $('#invpph').textbox('setValue', '0');
+        $('#saldo').textbox('setValue', '0');
+        $('#ketbyr').textbox('setValue', '');
+
+        $('#noacc1').textbox('setValue', '');
+        $('#ketacc1').textbox('setValue', '');
+        $('#rpacc1').textbox('setValue', '0');
+        $('#noacc2').textbox('setValue', '');
+        $('#ketacc2').textbox('setValue', '');
+        $('#rpacc2').textbox('setValue', '0');
+        $('#noacc3').textbox('setValue', '');
+        $('#ketacc3').textbox('setValue', '');
+        $('#rpacc3').textbox('setValue', '0');
+        $('#noacc4').textbox('setValue', '');
+        $('#ketacc4').textbox('setValue', '');
+        $('#rpacc4').textbox('setValue', '0');
+        $('#noacc5').textbox('setValue', '');
+        $('#ketacc5').textbox('setValue', '');
+        $('#rpacc5').textbox('setValue', '0');
+
+    }
+
+    function cariinv(nomorinv) {
+        //alert(nomorinv);
+
+        $.ajax({
+            url: 'accounting/cek_invoice.php?kode=' + nomorinv,
+            type: 'GET',
+            dataType: 'JSON',
+            success: function (data) {
+                if (data.success == true) {
+                    bersihform();
+                    $('#invno').textbox('setValue', data.inv.InvoiceNo);
+                    $('#invname').textbox('setValue', data.inv.InvoiceName);
+                    $('#invaddr').textbox('setValue', data.inv.InvoiceAddr1);
+                    $('#invnilai').textbox('setValue', data.inv.NET);
+                    $('#invoth').textbox('setValue', data.inv.OTH);
+                    $('#invppn').textbox('setValue', data.inv.InvoiceTax_IDR);
+                    $('#invpph').textbox('setValue', data.inv.InvoiceAmmount_IDR * 0.02);
+                    $('#saldo').textbox('setValue', data.inv.InvoiceSaldo_IDR);
+                    $('#ketbyr').textbox('setValue', 'Inv.No. ' + data.inv.InvoiceNo + ' ' + data.inv
+                        .InvoiceName);
+                    $('#dlginv').dialog('close');
+                    caririwayat(nomorinv);
+                } else {
+                    console.log(data);
+                    $.messager.show({
+                        title: 'Error',
+                        msg: data.message
+                    });
+                }
+            }
+        });
+    }
+
+    function caririwayat(nomorinv) {
+        //alert(nomorinv);
+        $("#grid-riwayat").datagrid('options').url = 'accounting/get_riwayat.php?kode=' + nomorinv;
+        $("#grid-riwayat").datagrid('reload');
+    }
+
+
+    function doSearch(value) {
+        //window.open('custserv/tracking/output_awb.php?awb='+value);
+        //alert('You input: ' + value);
+        $("#grid-invoice").datagrid('options').url = 'accounting/get_invoice.php?kode=' + value;
+        $("#grid-invoice").datagrid('reload');
+
+    }
+
+    function myformatter(date) {
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+        return y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d);
+    }
+
+    function myparser(s) {
+        if (!s) return new Date();
+        var ss = (s.split('-'));
+        var y = parseInt(ss[0], 10);
+        var m = parseInt(ss[1], 10);
+        var d = parseInt(ss[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+            return new Date(y, m - 1, d);
+        } else {
+            return new Date();
+        }
+    }
+
+
+    function formatrp(val, row) {
+        return number_format(val, 0, ',', '.');
+    }
+
+    function number_format(num, dig, dec, sep) {
+        x = new Array();
+        s = (num < 0 ? "-" : "");
+        num = Math.abs(num).toFixed(dig).split(".");
+        r = num[0].split("").reverse();
+        for (var i = 1; i <= r.length; i++) {
+            x.unshift(r[i - 1]);
+            if (i % 3 == 0 && i != r.length) x.unshift(sep);
+        }
+        return s + x.join("") + (num[1] ? dec + num[1] : "");
+    }
+
+    function addCommas(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+</script>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Master Harga</title>
+</head>
+<style type="text/css">
+	#fm{
+		margin:0;
+		padding:10px 30px;
+	}
+	.ftitle{
+		font-size:14px;
+		font-weight:bold;
+		padding:5px 0;
+		margin-bottom:10px;
+		border-bottom:1px solid #ccc;
+	}
+	.fitem{
+		margin-bottom:5px;
+	}
+	.fitem label{
+		display:inline-block;
+		width:80px;
+	}
+	.fitem input{
+		width:160px;
+	}
+</style>
+
+<body>
+	<table id="dg" title="MASTER HARGA PUBLISH" class="easyui-datagrid" style="width:100%;height:100%"
+			url="master/harga/get_harga.php"
+			toolbar="#toolbar" pagination="true"
+			rownumbers="false" fitColumns="false" singleSelect="true" pagesize=50>
+		<thead>
+			<tr>
+				<th field="CITY_CODE" width="50">KD.TUJ</th>
+				<th field="POST_CODE" width="50" align="center">KD.POS</th>
+				<th field="PROVINSI" width="150">PROPINSI</th>
+				<th field="KOTA" width="150">KOTA</th>
+				<th field="KECAMATAN" width="200">KECAMATAN</th>
+				<th field="PriceExp1" formatter="formatrp" width="100" align="right">Hrg REG.1</th>
+				<th field="PriceExp2" formatter="formatrp" width="100" align="right">Hrg REG.2</th>
+				<th field="PriceEkono1" formatter="formatrp" width="100" align="right">Hrg. EKO1</th>
+				<th field="PriceEkono2" formatter="formatrp" width="100" align="right">Hrg. EKO2</th>
+				<th field="PriceEkonoLim" formatter="formatrp" width="100" align="right">Minimum EKO</th>
+				<th field="PricePrima1" formatter="formatrp" width="100" align="right">Hrg ONS.1</th>
+				<th field="PricePrima2" formatter="formatrp" width="100" align="right">Hrg ONS.2</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<?php
+		if($grup=='ADMIN'){
+		?>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="new_data()">Tambah</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="edit_data()">Edit</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="delete_data()">Hapus</a>
+		<?php
+		}
+		?>
+		<input name="q_cbprov" id="q_cbprov" class="easyui-combobox" size="21" data-options=" 
+			prompt:'propinsi',
+			url:'master/harga/get_prov.php',
+			mode:'remote',
+			method:'get',
+			valueField:'prov',
+			textField:'prov',
+			onSelect: function(val){
+				var url = 'master/harga/get_kota.php?q='+val.prov;
+				$('#q_cbkota').combobox('reload', url);
+			}                    
+			">
+		<input name="q_cbkota" id="q_cbkota" class="easyui-combobox" size="21" data-options="                               
+			prompt:'kota/kab',
+			url:'master/harga/get_kota.php',
+			method:'get',
+			valueField:'kota',
+			textField:'kota'
+		">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="filter_data()">filter</a>
+	</div>
+	
+	<div id="dlg" class="easyui-dialog" style="width:auto;height:auto;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Informasi Harga</div>
+		<form id="fm" method="post" class="on_enter" novalidate>
+			<table>
+				<tr>
+					<td colspan="3">
+						<div class="fitem">
+							<label>Kode Pos</label>
+							<input name="kode_pos" type="text"  id="kode_pos" size="10"class="easyui-textbox"/>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3">						
+						<div class="fitem">
+							<label>Lokasi</label>
+							<input name="cbprov" id="cbprov" class="easyui-combobox" size="21" data-options="                               
+								url:'master/harga/get_prov.php',
+								mode:'remote',
+								method:'get',
+								valueField:'prov',
+								textField:'prov',
+								onSelect: function(val){
+									var url = 'master/harga/get_kota.php?q='+val.prov;
+									$('#cbkota').combobox('reload', url);
+								}
+								
+							" required>
+							<input name="cbkota" id="cbkota" class="easyui-combobox" size="21" data-options="                               
+								url:'master/harga/get_kota.php',
+								method:'get',
+								valueField:'kota',
+								textField:'kota',
+								onSelect: function(val){
+									var url = 'master/harga/get_kecamatan.php?q='+val.kota;
+									$('#cbkec').combobox('reload', url);
+								}
+							
+							" required>
+							<input name="cbkec" id="cbkec" class="easyui-combobox" size="20" data-options="                               
+								url:'master/harga/get_kecamatan.php',
+								method:'get',
+								valueField:'Kode',
+								textField:'Tujuan',
+								onSelect: function(row){            
+									$('#cbdest').val(row.Kode);
+									$('#kode_pos').textbox('setValue',row.post_code);									
+								}							
+							" required>
+							<input type="hidden" id="cbdest" name="cbdest">
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem">
+							<label>SDS 1:</label>
+							<input name="PriceSuper1" id="PriceSuper1" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>SDS 2:</label>
+							<input name="PriceSuper2" id="PriceSuper2" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>SDS.Lim:</label>
+							<input name="PriceSuperLim" id="PriceSuperLim" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem">
+							<label>ONS 1:</label>
+							<input name="PricePrima1" id="PricePrima1" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>ONS 2:</label>
+							<input name="PricePrima2" id="PricePrima2" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>ONS.Lim:</label>
+							<input name="PricePrimaLim" id="PricePrimaLim" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem">
+							<label>REG 1:</label>
+							<input name="PriceExp1" id="PriceExp1" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>REG 2:</label>
+							<input name="PriceExp2" id="PriceExp2" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>REG.Lim:</label>
+							<input name="PriceExpLim" id="PriceExpLim" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem">
+							<label>EKO 1:</label>
+							<input name="PriceEkono1" id="PriceEkono1" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>EKO 2:</label>
+							<input name="PriceEkono2" id="PriceEkono2" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div>
+					</td>
+					<td>
+						<div class="fitem">
+							<label>EKO.Lim:</label>
+							<input name="PriceEkonoLim" id="PriceEkonoLim" class="easyui-numberbox" required="true"
+							data-options="
+							prefix:',',                                
+							formatter:function(value){
+								return addCommas(value)
+							}
+							"
+							>
+						</div> 
+					</td>
+				</tr>
+			</table>																		 
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="save_data()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<?php 
+		include 'jq/on_enter.php';
+	?>
+	
+	<script>
+		function myformatter(date){
+				 var y = date.getFullYear();
+				 var m = date.getMonth()+1;
+				 var d = date.getDate();
+				 return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+			 }
+			 
+		function myparser(s){
+				 if (!s) return new Date();
+				 var ss = (s.split('-'));
+				 var y = parseInt(ss[0],10);
+				 var m = parseInt(ss[1],10);
+				 var d = parseInt(ss[2],10);
+				 if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+					 return new Date(y,m-1,d);
+				 } else {
+					 return new Date();
+				 }	
+		}
+
+		function formatrp(val,row){
+            return number_format(val,0,',','.');
+        };
+        function number_format(num,dig,dec,sep) {
+            x=new Array();
+            s=(num<0?"-":"");
+            num=Math.abs(num).toFixed(dig).split(".");
+            r=num[0].split("").reverse();
+            for(var i=1;i<=r.length;i++){x.unshift(r[i-1]);if(i%3==0&&i!=r.length)x.unshift(sep);}
+            return s+x.join("")+(num[1]?dec+num[1]:"");
+        }
+
+		function addCommas(nStr) {
+			nStr += '';
+			var x = nStr.split('.');
+			var x1 = x[0];
+			var x2 = x.length > 1 ? '.' + x[1] : '';
+			var rgx = /(\d+)(\d{3})/;
+			while (rgx.test(x1)) {
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
+				 
+		$(function(){
+			$("#kode_pos").textbox('textbox').bind('keydown', function(e){
+				if(e.keyCode == 13){
+					AutoDest();
+					return false;
+				}
+			});
+		});
+
+		function filter_data(){
+			var prov = $("#q_cbprov").combobox('getValue');
+			var kota = $("#q_cbkota").combobox('getValue');
+			if(prov==''){
+				$.messager.show({
+						title: 'Error',
+						msg: 'Pilih Provinsi !'
+				});
+				return false;
+			}
+			$("#dg").datagrid('options').url='master/harga/get_harga.php?prov='+prov+'&kota='+kota;
+			$("#dg").datagrid('reload');
+		}
+
+		function AutoDest(){
+
+			var kode_pos = $("#kode_pos").textbox('getValue');
+
+			$.ajax({
+				url:'master/harga/get_data_city.php?kode='+kode_pos,
+				type: 'GET',
+				dataType: 'JSON',
+				success:function(data){
+					if(data.success==true){ 
+						var prov = $("#cbprov");
+						var kota = $("#cbkota");
+						var kec = $("#cbkec");        
+						prov.combobox('setValue', data.data_city.PROVINSI);          												
+						kota.combobox('reload', 'master/harga/get_kota.php?q='+data.data_city.PROVINSI);	
+						kota.combobox('setValue', data.data_city.KOTA);          					
+						kec.combobox('reload', 'master/harga/get_kecamatan.php?q='+data.data_city.KOTA);
+						kec.combobox('setValue', data.data_city.KECAMATAN); 
+						
+						     
+
+						$("#cbdest").val(data.data_city.REC_ID);    
+					}else{
+						console.log(data);
+						$.messager.show({
+								title: 'Error',
+								msg: data.message
+						});
+					}
+				}
+			});
+		}	
+
+		var url;
+		function new_data(){
+			$('#dlg').dialog('open').dialog('setTitle','Tambah Harga');
+			$('#fm').form('clear');
+			form_reset();
+			url = 'master/harga/save_harga.php';
+		}
+		function form_reset(){
+			$("#PriceSuper1").numberbox('setValue','1');
+			$("#PriceSuper2").numberbox('setValue','1');
+			$("#PriceSuperLim").numberbox('setValue','1');
+			$("#PricePrima1").numberbox('setValue','1');
+			$("#PricePrima2").numberbox('setValue','1');
+			$("#PricePrimaLim").numberbox('setValue','1');
+			$("#PriceExp1").numberbox('setValue','1');
+			$("#PriceExp2").numberbox('setValue','1');
+			$("#PriceExpLim").numberbox('setValue','1');
+			$("#PriceEkono1").numberbox('setValue','1');
+			$("#PriceEkono2").numberbox('setValue','1');
+			$("#PriceEkonoLim").numberbox('setValue','1');
+			
+		}
+		function edit_data(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit Harga');
+				$('#fm').form('load',row);
+				url = 'master/harga/update_harga.php?id='+row.PriceCityID;
+
+				$.ajax({
+					url:'master/harga/get_lokasi.php?id='+row.PriceCityID,
+					type: 'GET',
+					dataType: 'JSON',
+					success:function(data){
+
+						if(data.success==true){ 
+							var prov = $("#cbprov");
+							var kota = $("#cbkota");
+							var kec = $("#cbkec");        
+							prov.combobox('setValue', data.data_city.PROVINSI);          												
+							kota.combobox('reload', 'master/harga/get_kota.php?q='+data.data_city.PROVINSI);	
+							kota.combobox('setValue', data.data_city.KOTA);          					
+							kec.combobox('reload', 'master/harga/get_kecamatan.php?q='+data.data_city.KOTA);
+							kec.combobox('setValue', data.data_city.KECAMATAN);
+								
+
+							$("#cbdest").val(data.data_city.REC_ID); 
+							$("#kode_pos").textbox('setValue', data.data_city.POST_CODE);   
+						}else{
+							console.log(data);
+							$.messager.show({
+								title: 'Error',
+								msg: data.message
+							});							
+						}
+					}
+				});
+			}
+		}
+		function save_data(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');
+						$('#fm').form('clear');
+						$.messager.show({
+							title: 'Success',
+							msg: result.successMsg
+						});
+					}
+				}
+			});
+		}
+		function delete_data(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Hapus data ini?',function(r){
+					if (r){
+						$.post('master/harga/destroy_harga.php',{id:row.PriceCityID},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+								$.messager.show({
+									title: 'Success',
+									msg: result.successMsg
+								});
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+
+</body>
+</html>

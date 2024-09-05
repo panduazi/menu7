@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Tarip Vendor</title>
+</head>
+<script>
+   function myformatter(date){
+            var y = date.getFullYear();
+            var m = date.getMonth()+1;
+            var d = date.getDate();
+            return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+        }
+		
+   function myparser(s){
+            if (!s) return new Date();
+            var ss = (s.split('-'));
+            var y = parseInt(ss[0],10);
+            var m = parseInt(ss[1],10);
+            var d = parseInt(ss[2],10);
+            if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+                return new Date(y,m-1,d);
+            } else {
+                return new Date();
+            }	
+   }
+			
+</script> 
+
+<body>
+	<table id="dg" title="TARIP & PRIORITAS VENDOR" class="easyui-datagrid" style="width:96%;height:650px"
+			url="master/taripvendor/get.php"
+			toolbar="#toolbar" pagination="true" pageSize="50"
+			rownumbers="false" fitColumns="true" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="KODE" width="50">Kode</th>
+				<th field="NAMA" width="100">Nama Tujuan</th>
+				<th field="SERV" width="50">Serv.</th>
+				<th field="VENDOR" width="150">Vendor</th>
+				<th field="PRIOR" width="150">Prioritas</th>
+				<th field="COST" align="right" width="40">TARIP</th>
+				<th field="MIN" align="right" width="20">Min.</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New Vendor</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit Vednor</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove Vendor</a>
+	</div>
+	
+	<div id="dlg" class="easyui-dialog" style="width:600px;height:350px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Vendor Information</div>
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>Kode</label>
+				<input name="KODE" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Tujuan</label>
+				<input name="NAMA" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Vendor</label>
+				<select name="VENDOR" class="easyui-combobox" data-options="prompt:'-- pilih --'">
+                  <?php 
+    	            include('config/koneksi.php'); 
+		            $sales=mysql_query("select VendorCode,VendorName from tblVendor order by VendorName",$koneksi);
+   		            while ($dsales=mysql_fetch_array($sales))
+		            echo "<option value='$dsales[0]'>$dsales[1]</option>";
+		          ?>
+                </select>  
+            </div>
+			<div class="fitem">
+				<label>Serv.</label>
+				<input name="SERV" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Prioritas</label>
+				<input name="PRIOR" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Tarip</label>
+				<input name="COST" class="easyui-numberbox">
+				Minumum <input name="MIN" class="easyui-numberbox">
+			</div>
+		</form>
+	</div>
+
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<script type="text/javascript">
+		var url;
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','New Vendor');
+			$('#fm').form('clear');
+			url = 'master/taripvendor/save.php';
+		}
+		function editUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit Vendor');
+				$('#fm').form('load',row);
+				url = 'master/taripvendor/update.php?id='+row.ID;
+			}
+		}
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+					if (r){
+						$.post('destroy_user.php',{id:row.id},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>

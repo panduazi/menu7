@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Master Customer</title>
+</head>
+<script>
+   function myformatter(date){
+            var y = date.getFullYear();
+            var m = date.getMonth()+1;
+            var d = date.getDate();
+            return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+        }
+		
+   function myparser(s){
+            if (!s) return new Date();
+            var ss = (s.split('-'));
+            var y = parseInt(ss[0],10);
+            var m = parseInt(ss[1],10);
+            var d = parseInt(ss[2],10);
+            if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+                return new Date(y,m-1,d);
+            } else {
+                return new Date();
+            }	
+   }
+			
+</script> 
+
+<body>
+  <div class="easyui-tabs" style="width:99%;height:auto">
+  	  <div title="DAFTAR CUSTOMER" style="padding:5px">
+			<table id="dg" class="easyui-datagrid" style="width:100%;height:auto"
+					url="master/customer/get_cust.php"
+					toolbar="#toolbar" pagination="true"
+					rownumbers="false" fitColumns="true" singleSelect="true" pagesize="20">
+				<thead>
+					<tr>
+						<th field="CustomerNo">NO. AKUN</th>
+						<th field="CustomerName">NAMA PELANGGAN</th>
+						<th field="CustomerAddr1" width="100">ALAMAT</th>
+						<th field="CustomerSales">SALES</th>
+						<th field="CustomerMemberDate" width="15">MEMBER</th>
+						<th field="CustomerLastDate" width="15">LAST</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div id="toolbar">
+			FILTER NAMA : <input id="textcari" name="textcari" class="easyui-textbox">
+			<a name="tbl1" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="filternama()">Filter</a>
+			<a name "tbl2" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Update</a>
+			<!--
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove Customer</a>
+			-->
+		</div>
+
+	</div>
+
+
+	<div id="dlg" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Customer Information</div>
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>Acc.No :</label>
+				<input name="CustomerNo" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>N a m e</label>
+				<input name="CustomerName" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Address</label>
+				<input name="CustomerAddr1" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Adress</label>
+				<input name="CustomerAddr2" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Sales</label>
+				<select name="CustomerSales" class="easyui-combobox" data-options="prompt:'-- pilih --'">
+                </select>  
+              </div>
+			<div class="fitem">
+				<label>Member</label>
+				<input name="CustomerMemberDate" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser">
+			</div>
+              
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+
+	<script type="text/javascript">
+		var url;
+
+		function filternama(){
+			var cari=$('#textcari').textbox('getValue');
+			var url = 'master/customer/get_cust.php?nama='+cari;
+         $("#dg").datagrid('reload', url);
+		}
+
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','New User');
+			$('#fm').form('clear');
+			url = 'master/customer/save_cust.php';
+		}
+		function editUser(){
+			alert('tes');
+			//var row = $('#dg').datagrid('getSelected');
+			//if (row){
+			//	$('#dlg').dialog('open').dialog('setTitle','Edit User');
+			//	$('#fm').form('load',row);
+			//	url = 'master/customer/update_cust.php?id='+row.CustomerNo;
+			//}
+		}
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+					if (r){
+						$.post('destroy_user.php',{id:row.id},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Master Customer</title>
+</head>
+<body>
+	<table id="dg" title="MASTER PEGAWAI" class="easyui-datagrid" style="width:96%;height:550px"
+			url="master/pegawai/get_peg.php"
+			toolbar="#toolbar" pagination="true"
+			rownumbers="false" fitColumns="true" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="PegawaiNo" width="50">NIK</th>
+				<th field="PegawaiKode" width="50">KODE</th>
+				<th field="PegawaiNama" width="150">NAMA PEGAWAI</th>
+				<th field="PegawaiDept" width="50">DEPT.</th>
+				<th field="PegawaiNoHP" width="50">NO.HP</th>
+				<th field="CityName" width="150">LOKASI</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New Pegawai</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit Pegawai</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove Pegawai</a>
+	</div>
+	
+	<div id="dlg" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Pegawai Information</div>
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>NIK</label>
+				<input name="PegawaiNo" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Initial</label>
+				<input name="PegawaiKode" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>N a m a</label>
+				<input name="PegawaiNama" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Dept.</label>
+				<select name="PegawaiDept" class="easyui-combobox" data-options="prompt:'-- pilih --'">
+                  <option value='OPS'>OPERATIONAL</option>
+                  <option value='ADM'>ADMINISTRASI</option>
+                  <option value='MKT'>MARKETING</option>
+                  <option value='CSO'>CUST.SERVICE</option>
+                  <option value='KEU'>KEUANGAN</option>
+                  <option value='MGR'>MANAGER</option>
+                </select>
+			</div>
+			<div class="fitem">
+				<label>NO.HP</label>
+				<input name="PegawaiNoHP" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Lokasi</label>
+				<select name="PegawaiLocation" class="easyui-combobox" data-options="prompt:'-- pilih --'">
+                  <?php 
+    	            include('config/koneksi.php'); 
+		            $sales=mysql_query("select CityId,CityName from tblCity order by CityName",$koneksi);
+   		            while ($dsales=mysql_fetch_array($sales))
+		            echo "<option value='$dsales[0]'>$dsales[1]</option>";
+		          ?>
+                </select>  
+              </div>
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<script type="text/javascript">
+		var url;
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','New User');
+			$('#fm').form('clear');
+			url = 'master/pegawai/save_peg.php';
+		}
+		function editUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit User');
+				$('#fm').form('load',row);
+				url = 'master/pegawai/update_peg.php?id='+row.PegawaiNo;
+			}
+		}
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+					if (r){
+						$.post('destroy_user.php',{id:row.id},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>

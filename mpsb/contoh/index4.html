@@ -1,0 +1,132 @@
+<!DOCTYPE html> 
+<html>
+<head>
+ <title>Page Title</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+ <script src="http://code.jquery.com/jquery.min.js"></script>
+ <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+ <!-- Start of first page -->
+ <div data-role="page" id="foo" data-theme="a">
+
+  <div data-role="header" data-position="fixed">
+   <a href="#mypanel1" class="ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all">No text</a>
+   <h1>My App</h1>
+   <a href="#mypanel2" class="ui-btn-right ui-btn ui-icon-gear ui-btn-icon-notext ui-corner-all">No text</a>
+  </div><!-- /header -->
+
+  <div role="main" class="ui-content">
+  
+   <ul data-role="listview" data-filter="true" data-filter-placeholder="Search fruits..." data-inset="true">
+    <li><a href="#">Apple</a></li>
+    <li><a href="#">Banana</a></li>
+    <li><a href="#">Cherry</a></li>
+    <li><a href="#">Cranberry</a></li>
+    <li><a href="#">Grape</a></li>
+    <li><a href="#">Orange</a></li>
+   </ul>
+   
+   <div class="ui-grid-b">
+    <div class="ui-block-a"><a href="#" class="ui-shadow ui-btn ui-corner-all">Anchor</a></div>
+    <div class="ui-block-b"><div class="button-wrap"><button class="ui-shadow ui-btn ui-corner-all">Button</button></div></div>
+    <div class="ui-block-c"><input value="Input" type="button"></div>
+   </div>
+   
+   <div class="ui-grid-d center">
+    <div class="ui-block-a"><a class="ui-shadow ui-btn ui-corner-all ui-icon-home ui-btn-icon-notext ui-btn-inline">Button</a></div>
+    <div class="ui-block-b"><a class="ui-shadow ui-btn ui-corner-all ui-icon-arrow-l ui-btn-icon-notext ui-btn-inline">Button</a></div>
+    <div class="ui-block-c"><a class="ui-shadow ui-btn ui-corner-all ui-icon-grid ui-btn-icon-notext ui-btn-inline">Button</a></div>
+    <div class="ui-block-d"><a class="ui-shadow ui-btn ui-corner-all ui-icon-arrow-r ui-btn-icon-notext ui-btn-inline">Button</a></div>
+    <div class="ui-block-e"><a class="ui-shadow ui-btn ui-corner-all ui-icon-gear ui-btn-icon-notext ui-btn-inline">Button</a></div>
+   </div>
+   
+  </div><!-- /content -->
+
+  <div data-role="footer" data-position="fixed">
+   <h2>Footer</h2>
+  </div><!-- /footer -->
+  
+  <div data-role="panel" data-position-fixed="true" data-display="push" data-theme="b" id="mypanel1">
+   
+   <ul data-role="listview">
+    <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+     <li><a href="#panel-fixed-page2">Accordion</a></li>
+     <li><a href="#panel-fixed-page2">Ajax Navigation</a></li>
+     <li><a href="#panel-fixed-page2">Autocomplete</a></li>
+     <li><a href="#panel-fixed-page2">Buttons</a></li>
+     <li><a href="#panel-fixed-page2">Checkboxes</a></li>
+     <li><a href="#panel-fixed-page2">Collapsibles</a></li>
+     <li><a href="#panel-fixed-page2">Controlgroup</a></li>
+     <li><a href="#panel-fixed-page2">Dialogs</a></li>
+     <li><a href="#panel-fixed-page2">Fixed toolbars</a></li>
+     <li><a href="#panel-fixed-page2">Flip switch toggle</a></li>
+     <li><a href="#panel-fixed-page2">Footer toolbar</a></li>
+     <li><a href="#panel-fixed-page2">Form elements</a></li>
+     <li><a href="#panel-fixed-page2">Grids</a></li>
+     <li><a href="#panel-fixed-page2">Header toolbar</a></li>
+     <li><a href="#panel-fixed-page2">Icons</a></li>
+     <li><a href="#panel-fixed-page2">Links</a></li>
+     <li><a href="#panel-fixed-page2">Listviews</a></li>
+     <li><a href="#panel-fixed-page2">Loader overlay</a></li>
+     <li><a href="#panel-fixed-page2">Navbar</a></li>
+     <li><a href="#panel-fixed-page2">Navbar, persistent</a></li>
+     <li><a href="#panel-fixed-page2">Pages</a></li>
+     <li><a href="#panel-fixed-page2">New</a></li>
+     <li><a href="#panel-fixed-page2">Popup</a></li>
+     <li><a href="#panel-fixed-page2">Radio buttons</a></li>
+     <li><a href="#panel-fixed-page2">Select</a></li>
+     <li><a href="#panel-fixed-page2">Slider, single</a></li>
+     <li><a href="#panel-fixed-page2">New</a></li>
+     <li><a href="#panel-fixed-page2">New</a></li>
+     <li><a href="#panel-fixed-page2">New</a></li>
+     <li><a href="#panel-fixed-page2">Text inputs & textarea</a></li>
+     <li><a href="#panel-fixed-page2">Transitions</a></li>
+   </ul>
+
+  </div><!-- /panel -->
+  
+  <div data-role="panel" data-position="right" data-position-fixed="true" data-display="overlay" data-theme="a" id="mypanel2">
+   
+   <form class="userform">
+
+    <h2>Login</h2>
+
+    <label for="name">Username:</label>
+    <input type="text" name="name" id="name" value="" data-clear-btn="true" data-mini="true">
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" value="" data-clear-btn="true" autocomplete="off" data-mini="true">
+
+    <div class="ui-grid-a">
+     <div class="ui-block-a"><a href="#" data-rel="close" class="ui-btn ui-shadow ui-corner-all ui-btn-b ui-mini">Cancel</a></div>
+     <div class="ui-block-b"><a href="#" data-rel="close" class="ui-btn ui-shadow ui-corner-all ui-btn-a ui-mini">Save</a></div>
+    </div>
+   </form>
+
+  </div><!-- /panel -->
+  
+ </div><!-- /page -->
+
+ <!-- Start of second page -->
+ <div data-role="page" id="bar">
+
+  <div data-role="header">
+   <h1>Bar</h1>
+  </div><!-- /header -->
+
+  <div role="main" class="ui-content">
+   <p>I'm the second in the source order so I'm hidden when the page loads. I'm just shown if a link that references my id is beeing clicked.</p>
+   <p><a href="#foo">Back to foo</a></p>
+  </div><!-- /content -->
+
+  <div data-role="footer">
+   <h4>Page Footer</h4>
+  </div><!-- /footer -->
+ </div><!-- /page -->
+
+</body>
+</html>

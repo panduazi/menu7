@@ -1,0 +1,148 @@
+<?php
+date_default_timezone_set('Asia/Jakarta');
+?>
+	<body>
+        <div class="easyui-tabs" style="width:100%;height:800">
+            <div title="Jurnal Umum" style="padding:5px">
+                <table id="dg" title="JURNAL HARIAN" class="easyui-datagrid" style="width:100%;height:500px"
+                        url="report/gl/get_data_gl.php"
+                        pagination="true" toolbar="#toolbar"
+                        rownumbers="false" fitColumns="false" singleSelect="true" pagesize=50>
+                    <thead>
+                        <tr>
+                        <th field="JournalDate">Tanggal</th>
+                        <th field="JournalPeriode">Periode</th>
+                        <th field="JournalVoucerNo">No.Voc</th>
+                        <th field="JournalAccNo" >No. Akun</th>
+                        <th field="AccName" >Nama Akun</th>
+                        <th field="JournalDesc">Keterangan Jurnal</th>
+                        <th field="Db"align="right">Debet</th>
+                        <th field="Cr"align="right">Credit</th>
+                            </tr>
+                    </thead>
+                </table>
+                <div id="toolbar">
+                    <input name="gl_tgl1" id="gl_tgl1" type="text" class="easyui-datebox" data-options="
+                    formatter:myformatter,
+                    parser:myparser                
+                    " value="<?php echo date('Y-m-d') ?>">            
+                    <input name="gl_tgl2" id="gl_tgl2" type="text" class="easyui-datebox" data-options="
+                    formatter:myformatter,
+                    parser:myparser                
+                    " value="<?php echo date('Y-m-d') ?>">            
+                    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="get_data_gl()" style="width:50px">Submit</a>          
+                    </div>
+            </div>
+
+            <div title="Sub-Legjer" style="padding:5px">
+                    <table id="dg2" title="SUB-LEDGER" class="easyui-datagrid" style="width:100%;height:400px"
+                            url="report/gl/get_data_sl.php"
+                            pagination="true" toolbar="#toolbar2"
+                            rownumbers="false" fitColumns="false" singleSelect="true" pagesize=50>
+                        <thead>
+                            <tr>
+                              <th field="JournalDate">Tanggal</th>
+                              <th field="JournalPeriode">Periode</th>
+                              <th field="JournalVoucerNo">No.Voc</th>
+                              <th field="JournalDesc">Keterangan Jurnal</th>
+                              <th field="Db"align="right">Debet</th>
+                              <th field="Cr"align="right">Credit</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div id="toolbar2">
+                        <input name="sl_tgl1" id="sl_tgl1" type="text" class="easyui-datebox" data-options="
+                        formatter:myformatter,
+                        parser:myparser                
+                        " value="<?php echo date('Y-m-d') ?>">            
+                        <input name="sl_tgl2" id="sl_tgl2" type="text" class="easyui-datebox" data-options="
+                        formatter:myformatter,
+                        parser:myparser                
+                        " value="<?php echo date('Y-m-d') ?>">     
+                        <input name="noacc" id="noacc" type="text" class="easyui-combobox" data-options="                               
+                        url:'report/gl/get_acc.php',
+                        method:'get',
+                        valueField:'no',
+                        textField:'nama'
+                        ">                             
+                        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="get_data_sl()" style="width:50px">Submit</a>          
+                    </div>
+                    </div>
+        </div>        
+
+    <?php 
+        include 'jq/on_enter.php';
+    ?>
+
+  <script>
+		function myformatter(date){
+				 var y = date.getFullYear();
+				 var m = date.getMonth()+1;
+				 var d = date.getDate();
+				 return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+			 }
+			 
+		function myparser(s){
+				 if (!s) return new Date();
+				 var ss = (s.split('-'));
+				 var y = parseInt(ss[0],10);
+				 var m = parseInt(ss[1],10);
+				 var d = parseInt(ss[2],10);
+				 if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+					 return new Date(y,m-1,d);
+				 } else {
+					 return new Date();
+				 }	
+		}			  
+	
+    // $(document).ready(function(){
+     
+    // });
+
+    function get_data_gl(){
+      var date1 = $("#gl_tgl1").datebox('getValue');
+      var date2 = $("#gl_tgl2").datebox('getValue');
+      var url = 'report/gl/get_data_gl.php?date1='+date1+'&date2='+date2;
+      $("#dg").datagrid('reload', url);
+    }
+
+    function get_data_sl(){
+      var date1 = $("#sl_tgl2").combobox('getValue');
+      var date2 = $("#sl_tgl2").combobox('getValue');
+      var acc = $("#noacc").combobox('getValue');
+      var url = 'report/gl/get_data_sl.php?date1='+date1+'&date2='+date2+'&acc='+acc;
+      $("#dg2").datagrid('reload', url);
+    }
+
+    function excel_data(){
+      var per1 = $("#per1").combobox('getValue');
+      var per2 = $("#per2").combobox('getValue');
+      var url = 'report/rekapinv/excel.php?per1='+p1+'&per2='+p2; 
+      window.open(url);
+
+    }
+    
+    function csv_data(){
+      var tgl1 = $("#tgl1").datebox('getValue');
+      var tgl2 = $("#tgl2").datebox('getValue');
+      // var cust = $("#nocust").val();  
+      var url = 'master/penjualan_agen/csv.php?date1='+tgl1+'&date2='+tgl2; 
+      window.open(url);
+
+    }
+
+    function printAwb(no){
+      window.open('transak/outbound/print_awb_new_cash.php?no_connote='+ no);
+    }
+
+    function reset_data(){
+      $("#dg").datagrid('loadData', []);
+      $('#form_data').form('clear');
+      $("#tgl1").datebox('setValue', '<?php echo date('Y-m-d') ?>');
+      $("#tgl2").datebox('setValue', '<?php echo date('Y-m-d') ?>');           
+    }
+
+	</script>
+    </body>
+
+

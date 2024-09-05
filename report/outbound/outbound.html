@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Daftar Penjualan</title>
+</head>
+<body>
+    <!-- sample 
+	<table id="dg" title="My Users" class="easyui-datagrid" style="width:700px;height:250px"
+		data-options="
+			url:'get_users.php',
+			toolbar:'#toolbar',
+			pagination:true,
+			rownumbers:true,
+			fitColumns:true,
+			singleSelect:true,
+			onDblClickRow:function(){
+				editUser();
+			}
+		">
+	</table> -->
+    
+
+	<table id='dailypayment' title='DATA OUTBOUND' class='easyui-datagrid' style='width:100%;height:100%'
+		url="report/outbound/out_getdata.php?start_date=1900-01-01&end_date=1900-01-01&cust='x'"
+		toolbar='#toolbar' nowrap='false' autoRowHeight='true' method='post'
+		rownumbers='true' fitColumns='true' singleSelect='true' showFooter='true' pagination='true'>
+		<thead>
+			<tr>
+			<th field='ConnoteNo'>Connote No.</th>
+			<th field='ConnoteDate'>Tanggal</th>
+			<th field='ConnoteCustName'>Nama Pegirim</th>
+			<th field='ConnoteRecvName'>Nama dituju</th>	
+			<th field='CityName'>Nama dituju</th>	
+			<th field='Tipe' align='center'>Jenis</th>	
+			<th field='ConnoteQty' align='right'>Qty</th>	
+			<th field='ConnoteWeight' align='right'>Berat</th>	
+			</tr>
+		</thead>
+	</table>
+	<div id='toolbar' style='padding:5px;height:auto'>
+		<div>
+			Mulai : <input id="date1" class='easyui-datebox' style='width:150px'>
+			s.d. : <input id="date2" class='easyui-datebox' style='width:150px'>
+            Nama Pelanggan : 
+            <select id="cbcust" style="width:300px" class="easyui-combobox"
+				url="report/outbound/cus_getdata.php"
+        		valueField="CustomerNo" textField="CustomerName">            
+			</select>
+			<a href='#' id="aaa" class='easyui-linkbutton' iconCls='icon-search'>Cari</a>
+		</div>
+    </div>    
+    
+	<script>
+		var d1=0;
+		var d2=0;
+		var c=0;
+		var mth=0;
+		var hr=0;
+		$('#date1').datebox({
+			onSelect: function(date){
+				if (date.getMonth()+1<10) {mth="0"+(date.getMonth()+1)} else {mth=(date.getMonth()+1)}
+				if (date.getDate()<10) {hr="0"+(date.getDate())} else {hr=(date.getDate())}
+				d1= date.getFullYear()+"-"+mth+"-"+hr;		
+			}
+		})
+
+		$('#date2').datebox({
+			onSelect: function(date){
+				if (date.getMonth()+1<10) {mth="0"+(date.getMonth()+1)} else {mth=(date.getMonth()+1)}
+				if (date.getDate()<10) {hr="0"+(date.getDate())} else {hr=(date.getDate())}
+				d2= date.getFullYear()+"-"+mth+"-"+hr;		
+			}
+		})
+		
+		$('#aaa').click(function(){
+			$('#dailypayment').datagrid('options').url="report/outbound/out_getdata.php?start_date="+d1+"&end_date="+d2;
+			$('#dailypayment').datagrid('reload');
+			//alert('dari: ' + d1 + ' sampai: ' + d2+'cust :'+c);
+		})
+		function formatrp(val,row){
+			return number_format(val,2,',','.');
+		};
+		function number_format(num,dig,dec,sep) {
+			x=new Array();
+			s=(num<0?"-":"");
+			num=Math.abs(num).toFixed(dig).split(".");
+			r=num[0].split("").reverse();
+			for(var i=1;i<=r.length;i++){x.unshift(r[i-1]);if(i%3==0&&i!=r.length)x.unshift(sep);}
+			return "Rp "+s+x.join("")+(num[1]?dec+num[1]:"");
+		}
+	</script>    
+</body>
+</html>

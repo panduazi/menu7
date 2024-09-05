@@ -1,0 +1,407 @@
+<?php
+date_default_timezone_set('Asia/Jakarta');
+?>
+<body>
+    <div style="margin:10px">    
+        <h2>JURNAL MEMORIAL</h2>
+        <div style="margin:10px;"></div>
+            <form id="form_input" class="on_enter" method="post">
+                <table>
+                    <tr>
+                        <td>
+                            No.Transaksi: 
+                        </td>
+                        <td>
+                            <input class="easyui-textbox" name="vocno" id="vocno" size="20" readonly>
+                            <input class="easyui-datebox" name="voctgl" id="voctgl" size="13" data-options="formatter:myformatter,
+                            required:true,
+                            parser:myparser,
+                            onSelect: function(){
+                            $('#bagdest').combobox('textbox').focus();
+                            }
+                            " value="<?php echo date('Y-m-d') ?>">
+                            <input type="hidden" name="temp_key" id="temp_key">
+                        </td>
+                    </tr>
+                    <tr>
+                            <td>
+                                Account : 
+                            </td>
+                            <td>                        
+                                <input name="JournalAccNo" id="JournalAccNo" class="easyui-combobox" data-options="                               
+                                                url:'accounting/get_acc.php',
+                                                method:'get',
+                                                valueField:'no',
+                                                textField:'nama'
+                                " style="width: 250px;">
+                            </td>
+                        </tr>
+                    <tr>
+                    <tr>
+                        <td>
+                            Keterangan : 
+                        </td>
+                        <td>
+                            <input class="easyui-textbox" name="JournalDesc" id="JournalDesc" style="width:450px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Jumlah(Rp.) : 
+                        </td>
+                        <td>
+                            <input name="JournalValue" id="JournalValue" class="easyui-numberbox" value="0"
+                            data-options="
+                            prefix:',',                                
+                            formatter:function(value){
+                                return addCommas(value)
+                            }
+                            ">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Debet/Kredit : 
+                        </td>
+                        <td>
+                            <select name="JournalType" id="JournalType" class="easyui-combobox" style="width:70px;">          
+                                <option value="0">Debet</option>
+                                <option value="1">Credit</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-add" onclick="TempInput()" style="width:80px">submit</a>
+                        </td>
+                    </tr>
+                </table>                       
+                <div style="margin-bottom:10px">      
+                </div>
+            </form>
+
+            <table class="easyui-datagrid" title="Journal Umum" style="width:770px;height:250px"
+                data-options="
+                    singleSelect:true,
+                    collapsible:true,
+                    url:'accounting/get_temp.php',
+                    method:'get',
+                    toolbar: '#toolbar_dlg_dg',
+                    showFooter:'true'
+                " 
+                    id="dg">
+                <thead>
+                    <tr>
+                        <th data-options="field:'tAccNo',width:80">No.Acc</th>
+                        <th data-options="field:'tAcclDesc',width:100">Keterangan</th>
+                        <th formatter="formatrp" data-options="field:'tAccValueDB',width:100,align:'right'">DEBET</th>                    
+                        <th formatter="formatrp" data-options="field:'tAccValueCR',width:100,align:'right'">KREDIT</th>                    
+                    </tr>
+                    
+                </thead>
+            </table>
+            <div id="toolbar_dlg_dg">          
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editDataTemp()">Edit</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteData()">Hapus</a>
+            </div>        
+        
+            <div style="text-align:center;padding:5px 0">
+                <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" id="submit_butt" style="width:80px">SAVE</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">CANCEL</a>
+            </div>
+        </div> 
+    </div>    
+     
+    <?php 
+        include 'jq/on_enter.php';
+    ?>
+    <script>
+        var temp_key = null;
+        var method = 'insert';
+       
+        function myformatter(date){
+          var y = date.getFullYear();
+          var m = date.getMonth()+1;
+          var d = date.getDate();
+          return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+        }
+ 
+        function myparser(s){
+                if (!s) return new Date();
+                var ss = (s.split('-'));
+                var y = parseInt(ss[0],10);
+                var m = parseInt(ss[1],10);
+                var d = parseInt(ss[2],10);
+                if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+                    return new Date(y,m-1,d);
+                } else {
+                    return new Date();
+                }	
+        }
+
+        function generateTempKey() {
+            var date = new Date();
+            var date_time = + date.getFullYear() + ""
+                + (date.getMonth()+1) + ""
+                + date.getDate() + ""
+                + date.getHours() + ""
+                + date.getMinutes() + ""
+                + date.getSeconds();
+
+            if(temp_key==null){
+                temp_key = '<?php echo $_SESSION['cuser'] ?>'+date_time;
+            }
+            $("#temp_key").val(temp_key);
+        }
+
+        function formatrp(val,row){
+          return number_format(val,0,',','.');
+        }
+        function number_format(num,dig,dec,sep) {
+            x=new Array();
+            s=(num<0?"-":"");
+            num=Math.abs(num).toFixed(dig).split(".");
+            r=num[0].split("").reverse();
+            for(var i=1;i<=r.length;i++){x.unshift(r[i-1]);if(i%3==0&&i!=r.length)x.unshift(sep);}
+            return s+x.join("")+(num[1]?dec+num[1]:"");
+        }
+
+        function addCommas(nStr) {
+            nStr += '';
+            var x = nStr.split('.');
+            var x1 = x[0];
+            var x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
+
+        $(document).ready(function(){
+           
+        });
+
+        // function cekNoDownlift(){
+
+         
+        //     var kode = $("#dono").textbox('getValue');
+        //     $.ajax({
+        //     url:'transak/downlift/cek_no_downlift.php?kode='+kode,
+        //     type: 'GET',
+        //     dataType: 'JSON',
+        //     success:function(data){
+        //         if(data.success==true){           
+        //             $("#dotgl").datebox('textbox').focus();
+        //         }else{
+        //         console.log(data);
+        //             $.messager.show({
+        //                     title: 'Error',
+        //                     msg: data.message
+        //             });
+        //         }
+        //     }
+        //     });
+        // }
+
+        function reloadDataTemp(){
+            $('#dg').datagrid('options').url="accounting/get_temp.php?temp_key="+temp_key;
+            $('#dg').datagrid('reload');        
+        }
+        
+
+        function editDataTemp(){
+            
+            var row = $('#dg').datagrid('getSelected');
+
+			if (row){
+
+				$("#JournalAccNo").combobox('setValue',row.tAccNo);
+                $("#JournalDesc").textbox('setValue',row.tAcclDesc);
+                $("#JournalValue").numberbox('setValue',row.tAccValue);
+                $("#JournalType").combobox('setValue',row.tAccType);
+
+                method = 'update';		
+                url = 'accounting/update_temp.php?id='+row.Idrec;		
+			}
+
+        }
+      
+        function TempInput(){
+
+            generateTempKey();
+            
+            if(method=='insert'){
+                url = "accounting/add_temp.php";
+            }
+
+            var acc = $("#JournalAccNo").combobox('getValue');
+            var acc_name = $("#JournalAccNo").combobox('getText');
+            var desc = $("#JournalDesc").textbox('getValue');
+            var jumlah = $("#JournalValue").numberbox('getValue');
+            var type = $("#JournalType").combobox('getValue');
+            
+            // console.log(desc);
+            // return false;
+            $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                'temp_key':temp_key,
+                'acc':acc,
+                'acc_name': acc_name,
+                'desc':desc,
+                'jumlah':jumlah,
+                'type':type
+            },
+            success:function(data){               
+                var data = eval('('+data+')');
+                if(data.success==true){
+                    reloadDataTemp();
+                    resetFormImput();
+                }else{
+                    console.log(data);
+                    $.messager.show({
+                            title: 'Error',
+                            msg: data.errorMsg
+                    });
+                }
+            }
+            })
+        }
+
+        function resetFormImput(){
+            method = 'insert';
+            $("#JournalAccNo").combobox('setValue','');
+            $("#JournalDesc").textbox('setValue','');
+            $("#JournalValue").numberbox('setValue',0);
+            $("#JournalType").combobox('setValue',0);
+        }
+
+        function deleteData(){
+           
+            generateTempKey();
+            
+            var row = $('#dg').datagrid('getSelected');
+                    if (row){
+                        $.messager.confirm('Confirm','Hapus data ini?',function(r){
+                            if (r){
+                                $.post('accounting/delete_temp.php',{id:row.Idrec},function(result){
+                                    if (result.success){
+                                        $('#dg').datagrid('reload');	// reload the user data
+                                    } else {
+                                        $.messager.show({	// show error message
+                                            title: 'Error',
+                                            msg: result.errorMsg
+                                        });
+                                    }
+                                },'json');
+                            }
+                        });
+                    }
+        }
+
+        
+
+        function submitForm(){  
+            
+            // var vocno = $("#vocno").textbox('getValue');
+
+            // if(vocno == ''){
+            //     $.messager.show({
+            //         title: 'Error',
+            //         msg: 'No.Transaksi Kosong'
+            //     });                
+            //     return;
+            // }            
+
+
+            var count_grid = $("#dg").datagrid('getRows');
+
+            if(count_grid == 0){
+                $.messager.show({
+                    title: 'Error',
+                    msg: 'Datagrid Kosong'
+                });                
+                return;
+            }            
+
+            var footer = $("#dg").datagrid('getFooterRows');
+
+            if(footer){
+                if(footer[0].tAccValueDB!=footer[0].tAccValueCR){
+                    $.messager.show({
+                            title: 'Error',
+                            msg: 'Tidak Balance'
+                        });                        
+                        return;
+                }                          
+            }
+                        
+            $("#submit_butt").linkbutton('disable');
+
+          
+            $('#form_input').form('submit',{
+
+                url: 'accounting/save_temp.php',
+
+                onSubmit: function(){
+
+                    return $(this).form('validate');
+
+                },
+
+                success: function(data){
+                    console.log(data);
+                    var data = eval('('+data+')');
+                    if(data.success==true){
+
+                        temp_key = null;          
+
+                        clearForm();
+                    
+                        $.messager.show({
+                                title: 'Success',
+                                msg: data.successMsg
+                        });
+
+                        $("#submit_butt").linkbutton('enable');
+
+                    }else{
+                        console.log(data);
+                        $.messager.show({
+                                title: 'Error',
+                                msg: data.errorMsg
+                        });
+                        $("#submit_butt").linkbutton('enable');
+                    }
+
+                }
+
+            }); 
+           
+                    
+
+        }
+
+        function clearForm(){
+
+            temp_key = null;
+            $("#dg").datagrid('loadData', []);
+            $('#form_input').form('clear');
+            $("#voctgl").datebox('setValue', '<?php echo date('Y-m-d') ?>');   
+            $("#vocno").textbox('textbox').focus(); 
+            
+        }
+        
+
+    </script>
+</body>
+

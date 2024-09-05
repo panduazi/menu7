@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Master</title>
+</head>
+
+<body>
+<h2>Tabel Penjualan</h2>
+<div style="margin:10px 0;"></div>
+ <table id='dailypayment' class='easyui-datagrid' style='width:500px;height:350px'
+ url='report/lapops1/getdata.php?start_date=2013/10/4&end_date=2013/10/5'
+ toolbar='#toolbar' nowrap='false' autoRowHeight='true' method='post'
+ rownumbers='true' fitColumns='false' singleSelect='true' showFooter='true'>
+ <thead>
+  <tr>
+   <th field='Tanggal' width='80'>Tanggal</th>
+   <th field='Nama' width='90'>Nama</th>
+   <th field='Jumlah' width='90' formatter='formatrp'>Jumlah</th>
+  </tr>
+ </thead>
+ </table>
+
+<div id='toolbar' style='padding:5px;height:auto'>
+<div>
+Date From: <input id="date1" class='easyui-datebox' style='width:80px'>
+To: <input id="date2" class='easyui-datebox' style='width:80px'>
+<a href='#' id="aaa" class='easyui-linkbutton' iconCls='icon-search'>Cari</a>
+</div>
+<script>
+var d1=0;
+var d2=0
+$('#date1').datebox({
+onSelect: function(date){
+d1= date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate();
+}
+})
+
+$(‘#date2’).datebox({
+onSelect: function(date){
+d2= date.getFullYear()+”/”+(date.getMonth()+1)+”/”+date.getDate();
+}
+})
+
+$(‘#aaa’).click(function(){
+$(‘#dailypayment’).datagrid(‘options’).url=”getdata.php?start_date=”+d1+”&end_date=”+d2;
+$(‘#dailypayment’).datagrid(‘reload’);
+//alert(“dari: ” + d1 + ” sampai: ” + d2);
+})
+function formatrp(val,row){
+return number_format(val,2,’,’,’.’);
+};
+function number_format(num,dig,dec,sep) {
+x=new Array();
+s=(num<0?”-“:””);
+num=Math.abs(num).toFixed(dig).split(“.”);
+r=num[0].split(“”).reverse();
+for(var i=1;i<=r.length;i++){x.unshift(r[i-1]);if(i%3==0&&i!=r.length)x.unshift(sep);}
+return “Rp “+s+x.join(“”)+(num[1]?dec+num[1]:””);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Import Resi</title>
+    <style>
+        .numberbox .textbox-text {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="easyui-panel" title="IMPORT/SINKRONISASI DATA OUTBOUND DARI WEB"
+        style="height: 200px; width:95%;padding:5px">
+        <form id="fimport" class="on_enter" method="post">
+            <table width="100%" border="0" cellspacing="0" cellpadding="2">
+                <tr>
+                    <td>&nbsp;</td>
+                    <input name="tglsync" type="text" class="easyui-datebox" data-options="
+                formatter:myformatter,
+                parser:myparser,
+                onSelect: function(){
+                  $('#nmcust').textbox('textbox').focus();
+                }
+                " id="tglsync" value="<?php echo date('Y-m-d') ?>" size="12" />
+
+                    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true"
+                        onclick="syncData()">Sync
+                        Data With Siap</a>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div id="myDialog" class="easyui-dialog" title="My Dialog" style="width:400px;height:200px;padding:10px"
+        data-options="iconCls:'icon-save',resizable:true,modal:true,closed:true">
+        <p>Ada 100 data yang bisa di sinkronisasi.</p>
+
+        <button type="button" class="easyui-linkbutton c6 l-btn l-btn-small" name="btnsync" id="btnsync"
+            onclick="syncNow()">Sinkronkan Sekarang</button>
+    </div>
+    <script>
+        function syncData() {
+            var tgl = $('#tglsync').datebox('getValue');
+            console.error('tgl', tgl)
+
+            var win = $.messager.progress({
+                title: 'Tunggu Sebentar',
+                msg: 'Loading data...'
+            });
+            $.ajax({
+                url: 'https://pandusiwibandung.co.id/api/internal/connote/getConnote.php?date=' + tgl,
+                type: 'GET',
+                headers: {
+                    "api-key": 'Fx338#!98765fYT#!2321'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    console.error('response', response)
+
+                    if (response.error) {
+                        $.messager.progress('close');
+                        alert('Berhasul');
+                    } else {
+                        dataSync = response.data
+                        $.messager.progress('close');
+                        let lengthData = response.data.length
+                        $('#myDialog p').text(`Ada ${lengthData} data yang bisa di sinkronisasi.`);
+                        $('#myDialog').dialog('open')
+                    }
+
+                },
+                error: function () {
+                    $.messager.progress('close');
+                    alert('Error fetching data from API');
+                }
+            });
+        }
+
+        async function syncNow() {
+            var successCount = 0;
+            var win = $.messager.progress({
+                title: 'Tunggu Sebentar',
+                msg: 'Loading data...'
+            });
+            $('#myDialog').dialog('close');
+            console.error('dataSync', dataSync);
+
+            // Create an array of promises for each data item
+            const promises = dataSync.map(async (item) => {
+                try {
+                    const response = await fetch('administrasi/import_resi/syncConnnote.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(item)
+                    });
+
+                    const result = await response.json();
+                    if (result.error === false) {
+                        successCount++;
+                    }
+                    console.log(result.message);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+
+            // Wait for all promises to resolve
+            await Promise.all(promises);
+
+            $.messager.progress('close');
+            alert(`Sinkronisasi berhasil`);
+        }
+    </script>
+</body>
+
+
+</html>

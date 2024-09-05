@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Daftar Penjualan</title>
+</head>
+<body>
+    <!-- sample 
+	<table id="dg" title="My Users" class="easyui-datagrid" style="width:700px;height:250px"
+		data-options="
+			url:'get_users.php',
+			toolbar:'#toolbar',
+			pagination:true,
+			rownumbers:true,
+			fitColumns:true,
+			singleSelect:true,
+			onDblClickRow:function(){
+				editUser();
+			}
+		">
+	</table> -->
+    <div style="margin:5px">
+      Tanggal : <input id="date1" class="easyui-datebox">
+	  <a href='#' id="aaa" class='easyui-linkbutton' iconCls='icon-search'>Cari</a>
+    
+    </div>
+
+	<table id='dailypu' title='' class='easyui-datagrid' style='width:100%;height:90%'
+		url="report/pickup/pu_getdata.php?start_date=1900-01-01"
+		toolbar='#toolbar' nowrap='false' autoRowHeight='true' method='post'
+		rownumbers='true' fitColumns='true' singleSelect='true' showFooter='true' pagination='true'>
+		<thead>
+			<tr>
+			<th field='POrderDate'>Order#</th>
+			<th field='POrderCustName'>Pelanggan</th>
+			<th field='POrderCustAddr1'>Alamat Pengambilan</th>
+			<th field='POrderArea'>Area</th>	
+			<th field='POrderKurir'>Kurir</th>	
+			<th field='POrderCSO'>CSO</th>	
+			</tr>
+		</thead>
+	</table>
+	<!-- <div id='toolbar' style='padding:5px;height:auto'>
+		<div>
+			Tanggal : <input id="date1" class='easyui-datebox' style='width:150px'>
+			<a href='#' id="aaa" class='easyui-linkbutton' iconCls='icon-search'>Cari</a>
+		</div>
+    </div>    
+    -->
+	<script>
+		var d1=0;
+		var mth=0;
+		var hr=0;
+		$('#date1').datebox({
+			onSelect: function(date){
+				if (date.getMonth()+1<10) {mth="0"+(date.getMonth()+1)} else {mth=(date.getMonth()+1)}
+				if (date.getDate()<10) {hr="0"+(date.getDate())} else {hr=(date.getDate())}
+				d1= date.getFullYear()+"-"+mth+"-"+hr;		
+			}
+		})
+
+		$('#aaa').click(function(){
+			$('#dailypu').datagrid('options').url="report/pickup/pu_getdata.php?start_date="+d1;
+			$('#dailypu').datagrid('reload');
+			//alert('dari: ' + d1 + ' sampai: ' + d2+'cust :'+c);
+		})
+		function formatrp(val,row){
+			return number_format(val,2,',','.');
+		};
+		function number_format(num,dig,dec,sep) {
+			x=new Array();
+			s=(num<0?"-":"");
+			num=Math.abs(num).toFixed(dig).split(".");
+			r=num[0].split("").reverse();
+			for(var i=1;i<=r.length;i++){x.unshift(r[i-1]);if(i%3==0&&i!=r.length)x.unshift(sep);}
+			return "Rp "+s+x.join("")+(num[1]?dec+num[1]:"");
+		}
+	</script>    
+</body>
+</html>

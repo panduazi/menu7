@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Master Customer</title>
+</head>
+<body>
+	<table id="dg" title="MASTER USER" class="easyui-datagrid" style="width:96%;height:550px"
+			url="master/user/get_user.php"
+			toolbar="#toolbar" pagination="true"
+			rownumbers="false" fitColumns="true" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="id" width="50">Id#</th>
+				<th field="UserID" width="50">USER</th>
+				<th field="UserPassword" width="100">PASSWORD</th>
+				<th field="PegawaiNama" width="100">NAMA USER</th>
+				<th field="PegawaiDept" width="150">DEPT</th>
+				<th field="UserLevel" width="50">LEVEL</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New Pegawai</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit Pegawai</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Remove Pegawai</a>
+	</div>
+	
+	<div id="dlg" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">User Information</div>
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>User ID</label>
+				<input name="UserID" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Password</label>
+				<input name="UserPassword" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Pegawai</label>
+				<select name="PegawaiNo" class="easyui-combobox" data-options="prompt:'-- pilih --'">
+                  <?php 
+    	            include('config/koneksi.php'); 
+		            $sales=mysql_query("select PegawaiNo,PegawaiNama from tblpegawai order by PegawaiNama",$koneksi);
+   		            while ($dsales=mysql_fetch_array($sales))
+		            echo "<option value='$dsales[0]'>$dsales[1]</option>";
+		          ?>
+                </select>  
+              </div>
+			<div class="fitem">
+				<label>Level</label>
+				<input name="UserLevel" class="easyui-numberbox" required="true">
+			</div>
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<script type="text/javascript">
+		var url;
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','New User');
+			$('#fm').form('clear');
+			url = 'master/user/save_user.php';
+		}
+		function editUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit User');
+				$('#fm').form('load',row);
+				url = 'master/user/update_user.php?id='+row.id;
+			}
+		}
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+					if (r){
+						$.post('master/user/destroy_user.php',{id:row.UserID},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>

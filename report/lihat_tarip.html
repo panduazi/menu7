@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ 	<title>Untitled Document</title>
+</head>
+
+<body>
+
+  <table id="dg" title="Tarip SMU Husen-Bandung" class="easyui-datagrid" style="width:100%;height:600px"
+        url="master/taripsmu/get_tarip.php"
+        toolbar="#toolbar"
+        rownumbers="true" fitColumns="true" singleSelect="true">
+    <thead>
+        <tr>
+            <th field="VENDOR" width="50">Vendor</th>
+            <th field="KODE" width="50">Kode</th>
+            <th field="NAMA" width="200">Kota Tujuan</th>
+            <th field="GA" width="60">Garuda-GA</th>
+            <th field="JT" width="60">Lion-JT</th>
+            <th field="XN" width="60">Express-XN</th>
+            <th field="QZ" width="60">AirAsia-QZ</th>
+            <th field="QG" width="60">CityLink-QG</th>
+            <th field="IN1" width="60">NamAir-IN</th>
+            <th field="SJ" width="60">Sriwijaya Air</th>
+            <th field="PRIORITAS" width="50">Urut</th>
+            <th field="PRI_KODE" width="50">Air</th>
+            <th field="PRI_ORIG" width="50">Port</th>
+            <th field="PSS" width="60">Pandu-JKT</th>
+            
+        </tr>
+    </thead>
+  </table>
+    <div id="toolbar">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New Tarip</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit Tarip</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">Hapus Tarip</a>';
+        
+	<div id="dlg" class="easyui-dialog" style="width:500px;height:550px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Tarip Information</div>
+        
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>Vendor:</label>
+				<input name="VENDOR" class="easyui-textbox" required>
+			</div>
+			<div class="fitem">
+				<label>Kode:</label>
+				<input name="KODE" class="easyui-textbox" required>
+			</div>
+			<div class="fitem">
+				<label>Nama:</label>
+				<input name="NAMA" class="easyui-textbox" required>
+			</div>
+			<div class="fitem">
+				<label>GARUDA-GA:</label>
+				<input name="GA" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>LION-JT:</label>
+				<input name="JT" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>EXPRESS-XN:</label>
+				<input name="XN" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>AIRAIA-QZ:</label>
+				<input name="QZ" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>CITILINK-QG:</label>
+				<input name="QG" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>NAMAIR-IN:</label>
+				<input name="IN1" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>Srivijaya Air:</label>
+				<input name="SJ" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>Pandu-JKT:</label>
+				<input name="PSS" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>Prioritas:</label>
+				<input name="PRIORITAS" class="easyui-numberbox">
+			</div>
+			<div class="fitem">
+				<label>AirLine:</label>
+				<input name="PRI_KODE" class="easyui-textbox">
+			</div>
+			<div class="fitem">
+				<label>Port:</label>
+				<input name="PRI_ORIG" class="easyui-textbox">
+			</div>
+		</form>
+	</div>
+    
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<script type="text/javascript">
+		var url;
+		function newUser(){
+			$('#dlg').dialog('open').dialog('setTitle','New Tarip');
+			$('#fm').form('clear');
+			url = 'master/taripsmu/save.php';
+		}
+		function editUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit Tarip');
+				$('#fm').form('load',row);
+				url = 'master/taripsmu/update.php?id='+row.id;
+			}
+		}
+		function saveUser(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.errorMsg){
+						$.messager.show({
+							title: 'Error',
+							msg: result.errorMsg
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the user data
+					}
+				}
+			});
+		}
+		function destroyUser(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Anda yakin akan HAPUS record ini ?',function(r){
+					if (r){
+						$.post('master/taripsmu/destroy.php',{id:row.KODE},function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the user data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.errorMsg
+								});
+							}
+						},'json');
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>        
+</body>
+</html>

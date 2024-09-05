@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Full Layout - jQuery EasyUI Demo</title>
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4.3/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4.3/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4.3/demo.css">
+	<script type="text/javascript" src="jquery-easyui-1.4.3/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery-easyui-1.4.3/jquery.easyui.min.js"></script>
+</head>
+<body style="font-family:Calibri" class="easyui-layout">
+    <div data-options="region:'north',split:true" title="" style="height:35px;padding:5px; background:#333">
+        <span style="float:right; font-size:12px; color:#FFF">| Account | Logout |</span>
+    </div>
+	<div data-options="region:'west',split:true,title:'MENU UTAMA'" style="width:200px;padding:3px;">
+     <div class="easyui-accordion" fit="true" border="false" iconCls="icon-redo">
+        <div title="Dashboard">
+            <ul class="easyui-tree">
+                <li><a href="#" style="text-decoration:none">Outbound Shipment</a></li>
+                <li><a href="#" style="text-decoration:none">Customer Activity</a></li>
+                <li><a href="#" style="text-decoration:none">Destination Activity</a></li>
+            </ul>
+        </div>
+        <div title="Menu 2">
+            <ul class="easyui-tree">
+                <li>Child Menu 1</li>
+                <li>Child Menu 2</li>
+                <li>Child Menu 3</li>
+            </ul>
+        </div>
+        <div title="Menu 3">
+            <ul class="easyui-tree">
+                <li>Child Menu 1</li>
+                <li>Child Menu 2</li>
+                <li>Child Menu 3</li>
+            </ul>
+        </div>
+     </div>    
+    </div>
+	<div data-options="region:'center',title:'MAIN'">
+    <?php 
+     if (isset($_GET['hal'])) {
+  		if ($_GET['hal']=='home') {include 'home.php';}
+		elseif ($_GET['hal']=='complain') {include 'rekap_complain.php';}
+		elseif ($_GET['hal']=='pickup') {include 'rekap_pickup.php';}
+		elseif ($_GET['hal']=='rekapharian') {include 'rekap_jual_custharian.php';}
+		elseif ($_GET['hal']=='rekapcust') {include 'rekap_jual_cust.php';}
+		elseif ($_GET['hal']=='rekapgerai') {include 'rekap_jual_gerai.php';}
+		elseif ($_GET['hal']=='jadwalcair') {include 'jadwal_cair.php';}
+		elseif ($_GET['hal']=='rekapcash') {include 'rekap_jual_cash.php';}
+		elseif ($_GET['hal']=='kurirpickup') {include 'home.php';}
+		elseif ($_GET['hal']=='areacust') {include 'home.php';}
+		elseif ($_GET['hal']=='outbound') {include 'outbound.php';}
+		elseif ($_GET['hal']=='outdest') {include 'rekap_outdest.php';}
+		elseif ($_GET['hal']=='kpiops') {include 'kpi_ops.php';}
+		}
+	 else  {include 'home.php';}
+    ?>
+    </div>
+    <div region="south" class="fill" style="height: 35px; padding: 5px;" split="true">
+      Copyright &copy; 2015 - IT Dept Pandu Siwi Sentosa - Bandung
+    </div>    
+</body>
+</html>

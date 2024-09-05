@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>List View</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<style>
+		body {
+		margin: 0;
+		padding: 0;
+		}
+		.bg {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		z-index: 1;
+		float: left;
+		left: 0;
+		}
+	</style>	
+	
+</head>
+<body>
+    <!--------------home page----------->
+	<div id="pagehome"  data-role="page" data-theme="a">
+	<div data-role="header" data-position="fixed">
+		<h1 align="center">PanduLogistics</h1>
+		<a href="#mypanel1" class="ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all">No text</a>
+		<a href="#mypanel2" class="ui-btn-right ui-btn ui-icon-gear ui-btn-icon-notext ui-corner-all">No text</a>
+		
+		<!-- <div data-role="navbar">
+			<ul>
+				<li><a href="Form_Input.php" data-role="button" data-inline="true" data-transition="pop">Input Data</a></li>
+				<li><a href="Listdata.php">List Data</a></li>
+			</ul>
+		</div>
+		-->
+	</div>
+	<div data-role="content">
+        <img src="gambar/latar_20.gif" alt="gambar" class="bg"/>
+	</div>
+	<div id="mypanel1" data-role="panel" data-position-fixed="true" data-display="push" data-theme="b">
+		<ul data-role="listview">
+			<li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+			<li><a href="#page-trace">Lacak kiriman</a></li>
+			<li><a href="#page-produk">Produk, Tarip dan Harga</a></li>
+			<li><a href="#page-jaringan">Jaringan</a></li>
+			<li><a href="#page-about">Tentang kami</a></li>
+		</ul>
+	</div><!-- /panel -->
+	
+	<div  id="mypanel2" data-role="panel" data-position="right" data-position-fixed="true" data-display="overlay" data-theme="a">
+		<form method="post" action="login.php">
+			<h2>Login</h2>
+			<label for="name">Username:</label>
+			<input type="text" name="name" id="name" value="" data-clear-btn="true" data-mini="true">
+			<label for="password">Password:</label>
+			<input type="password" name="pass" id="pass" value="" data-clear-btn="true" autocomplete="off" data-mini="true">
+			<input type="submit" data-inline="true" id= "login" name="login" value="login">
+		</form>
+	</div><!-- /panel -->
+
+	<!--
+	<div data-role="footer" data-position="fixed">
+		<h2>ICT Dept.</h2>
+	</div>
+	-->
+	</div>
+  
+	<!-- Produk page ----------------------------------------->
+    <div id="page-produk" data-role="page">
+        <div data-role="header">
+             <h1>Produk</h1>
+			 <a href="#pagehome" data-icon="home" data-iconpos="left" data-transition="slide">Kembali</a>
+        </div>
+        <div data-role="main" class="ui-content">
+			<ul data-role="listview" data-inset="true">
+				<li><a href="#hal_kurir1">
+					<img src="gambar/kurir.jpeg">
+					<h2>Courier Domestik & International</h2>
+					<p>Jasa pengiriman Dokumen dan Paket cepat</p></a>
+				</li>
+				<li><a href="#">
+					<img src="gambar/gudang.jpg">
+					<h2>Pergudangan</h2>
+					<p>Jasa sewa dan pengelolaan gudang</p></a>
+				</li>
+				<li><a href="#">
+					<img src="gambar/paking.jpeg">
+					<h2>Jasa paking</h2>
+					<p>Jasa pembuatan paking kayu dengan mutu-standar</p></a>
+				</li>
+			</ul>
+		</div>
+        <div data-role="footer" data-position="fixed">
+             <h1>ICT Dept</h1>
+		</div>
+    </div> 
+
+	<!-- Produk Kurir 1----------------------------------------->
+    <div id="hal_kurir1" data-role="page">
+        <div data-role="header">
+             <h2>Jasa Kurir</h2>
+			 <a href="#page-produk" data-icon="home" data-iconpos="left" data-transition="slide">Kembali</a>
+        </div>
+        <div data-role="main" class="ui-content">
+			<ul data-role="listview">
+				<li>
+		            <h1>City Corier</h1> 
+					<p>Jasa layanan pengiriman dokumen dan paket dengan</p>
+					<p>tujuan dalam kota bandung.</p>
+					<p>Waktu tempuh 1 hari</p>
+				</li>
+				<li>
+					<h1>Express</h1>
+					<p>Jasa pengiriman dokumen dan paket tujuan domestik.</p>
+					<p>Waktu tempuh 1-2 hari</p>
+					<p> <a href="#hitbea_exp" data-role="button" data-inline="true" data-icon="grid">Simulasi harga Express</a></p>
+				</li>
+				<li>
+					<h1>Regular</h1>
+					<p>Jasa pengiriman dokumen dan paket tujuan domestik.</p>
+					<p> <a href="#hitbea_reg" data-role="button" data-inline="true" data-icon="grid">Simulasi harga Regular</a></p>
+				</li>
+				<li>
+					<h1>Ekonomis</h1>
+					<p>Jasa pengiriman dokumen dan paket tujuan domestik.</p>
+					<p>dengan harga yg lebih ekonomis,</p>
+					<p>untuk barang-barang yang tidak terlalu</p>
+					<p>peka akan waktu tempuh</p>
+					<p> <a href="#hitbea_eko" data-role="button" data-inline="true" data-icon="grid">Simulasi harga Ekonomis</a></p>
+				</li>
+				<li>
+					<h1>Borongan</h1>
+					<p>Jasa pengiriman dokumen dan paket tujuan domestik.</p>
+					<p>dengan harga yg bisa disesuakan</p>
+					<p>untuk barang-barang yang tidak terlalu</p>
+					<p>peka akan waktu tempuh</p>
+				</li>
+			</ul>
+		</div>
+
+        <div data-role="footer">
+             <h1>ICT Dept</h1>
+		</div>
+    </div> 
+
+
+	
+	<!-- TRACKING page----------------------------------------->
+    <div id="page-trace" data-role="page">
+        <div data-role="header">
+             <h1>Lacak kiriman</h1>
+			 <a href="#pagehome" data-icon="home" data-iconpos="left" data-transition="slide">Kembali</a>
+        </div>
+        <div data-role="main" class="ui-content">
+		<form> 
+			<label for="no">Nomor resi:</label>
+			<input type="text" name="noresi" id="noresi" value="" data-clear-btn="true" data-mini="true">
+			<a href="#" data-role="button" data-inline="true" data-icon="check">Lacak</a>
+			<a href="#" data-role="button" data-inline="true"data-icon="delete">Batal</a>
+		</form>
+		
+		</div>
+        <div data-role="footer" data-position="fixed">
+             <h1>ICT Dept</h1>
+		</div>
+    </div> 
+  
+	<!-- JARINGANG page----------------------------------------->
+    <div id="page-jaringan" data-role="page">
+        <div data-role="header">
+             <h1>jaringan/Network</h1>
+			 <a href="#pagehome" data-icon="home" data-iconpos="left" data-transition="slide">Kembali</a>
+        </div>
+        <div data-role="main" class="ui-content">
+			<ul data-role="listview">
+				<li>Banda Aceh</li>
+				<li>Medan</li>
+				<li>BMW</li>
+				<li>Cadillac</li>
+				<li>Ferrari</li>
+			</ul>		
+		</div>
+        <div data-role="footer">
+             <h1>ICT Dept</h1>
+		</div>
+    </div> 
+   
+
+</body>
+</html>

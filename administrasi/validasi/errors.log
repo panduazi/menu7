@@ -1,0 +1,5 @@
+[04-Sep-2024 09:58:15 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ID' in 'where clause' in D:\xampp\htdocs\menu7\administrasi\validasi\update_resi.php:51
+Stack trace:
+#0 D:\xampp\htdocs\menu7\administrasi\validasi\update_resi.php(51): mysqli->query('SELECT * FROM t...')
+#1 {main}
+  thrown in D:\xampp\htdocs\menu7\administrasi\validasi\update_resi.php on line 51
