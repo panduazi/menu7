@@ -1,0 +1,16 @@
+[06-Sep-2024 04:54:56 Europe/Berlin] PHP Warning:  require(../../config/koneksi.php): Failed to open stream: No such file or directory in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 04:54:56 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required '../../config/koneksi.php' (include_path='D:\xampp\php\PEAR') in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php:8
+Stack trace:
+#0 {main}
+  thrown in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 04:56:00 Europe/Berlin] PHP Warning:  require(../../config/koneksi.php): Failed to open stream: No such file or directory in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 04:56:00 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required '../../config/koneksi.php' (include_path='D:\xampp\php\PEAR') in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php:8
+Stack trace:
+#0 {main}
+  thrown in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 04:57:55 Europe/Berlin] PHP Warning:  require(../../config/koneksi.php): Failed to open stream: No such file or directory in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 04:57:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required '../../config/koneksi.php' (include_path='D:\xampp\php\PEAR') in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php:8
+Stack trace:
+#0 {main}
+  thrown in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 8
+[06-Sep-2024 10:03:48 Asia/Jakarta] PHP Warning:  Undefined array key "cusername" in D:\xampp\htdocs\menu7\accounting\save_journalbayar.php on line 13

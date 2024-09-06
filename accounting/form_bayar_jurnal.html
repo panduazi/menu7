@@ -503,6 +503,8 @@ include 'jq/on_enter.php';
     }
 
     function rekamjurnal() {
+        // var tes = JSON.parse(localStorage.dataArrayObj)
+
         var totdb = $('#totcredit').textbox('getValue');
         var totcr = $('#totdebet').textbox('getValue');
         if (totdb == '' || totcr == '') {
@@ -552,9 +554,28 @@ include 'jq/on_enter.php';
                 ByrDate: date,
                 ByrAmmount_IDR: $('#totcredit').numberbox('getValue'),
                 ByrUser: $('#cuser').val(),
+                ByrAccNo: noacc5,
                 dataJournal: dataArrayObj
             }
-            console.log('dataArrayObj', allData)
+            fetch('accounting/save_journalbayar.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(allData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    if (data.success) {
+                        clearForm()
+                        alert('Pembayaran berhasil');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Form submission failed!');
+                });
 
         }
 
@@ -696,5 +717,33 @@ include 'jq/on_enter.php';
             x1 = x1.replace(rgx, '$1' + ',' + '$2');
         }
         return x1 + x2;
+    }
+    function clearForm() {
+        
+
+        // Clear number inputs
+        document.querySelectorAll('#formbayar input[type="number"]').forEach(function (input) {
+            input.value = '0';
+        });
+
+        // Clear date inputs
+        
+
+        // Clear easyui-textbox fields
+        $('.easyui-textbox').textbox('clear');
+
+        // Clear easyui-numberbox fields
+        $('.easyui-numberbox').numberbox('setValue', '0.0');
+
+        // Clear easyui-datebox fields
+        $('.easyui-datebox').datebox('clear');
+
+        // Clear easyui-datagrid
+        $('#grid-riwayat').datagrid('loadData', { total: 0, rows: [] });
+
+        // Reset any other specific fields if needed
+        $('#invno').textbox('setValue', '');
+        $('#totdebet').numberbox('setValue', '0.0');
+        $('#totcredit').numberbox('setValue', '0.0');
     }
 </script>
